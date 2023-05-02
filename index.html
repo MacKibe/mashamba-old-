@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Swiper demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+  <!-- Link Swiper's CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+
+  <!-- Demo styles -->
+  <style>
+    html,
+    body {
+      position: relative;
+      height: 100%;
+    }
+
+    body {
+      background: #eee;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    .swiper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #cdcdcd;
+      display: grid;
+      grid-template-rows: 2fr 1fr;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .swiper-wrapper {
+        min-height: 90dvh;
+    }
+
+    .first_page_section img{
+        width: 25%;
+    }
+    .other_page_section {
+        display: flex;
+        gap: 5%;
+        justify-content: center;
+    }
+    .other_page_section img{
+        width: 5%;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Swiper -->
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+        </div>
+      </div>
+      <div class="swiper-slide">Slide 2</div>
+      <div class="swiper-slide">Slide 3</div>
+      <div class="swiper-slide">Slide 4</div>
+      <div class="swiper-slide">Slide 5</div>
+      <div class="swiper-slide">Slide 6</div>
+      <div class="swiper-slide">Slide 7</div>
+      <div class="swiper-slide">Slide 8</div>
+      <div class="swiper-slide">Slide 9</div>
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+  <!-- Initialize Swiper -->
+  <script>
+    var swiper = new Swiper(".mySwiper", {
+      cssMode: true,
+      
+    //   Show the navigation buttons
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+    //   Show the pagination at the bottom
+      pagination: {
+        el: ".swiper-pagination",
+      },
+
+    //   Allow control with the mouse wheel
+      mousewheel: true,
+
+    //   Allow control with the keyboard arrow buttons
+      keyboard: true,
+    });
+  </script>
+</body>
+
+</html>

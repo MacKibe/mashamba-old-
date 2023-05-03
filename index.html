@@ -3,17 +3,17 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Swiper demo</title>
+  <title>Document Viewer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
   <!-- Link Swiper's CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 
   <!-- Demo styles -->
   <style>
-    html,
-    body {
-      position: relative;
-      height: 100%;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
@@ -21,19 +21,16 @@
       font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
       font-size: 14px;
       color: #000;
-      margin: 0;
-      padding: 0;
     }
 
     .swiper {
       width: 100%;
-      height: 100%;
+      height: 100dvh;
     }
 
     .swiper-slide {
       text-align: center;
-      font-size: 18px;
-      background: #cdcdcd;
+      background: #ffd7b0;
       display: grid;
       grid-template-rows: 2fr 1fr;
       justify-content: center;
@@ -44,16 +41,22 @@
         min-height: 90dvh;
     }
 
-    .first_page_section img{
-        width: 25%;
+    .first_page_section {
+
     }
+
+    .first_page_section img{
+        width: 20%;
+    }
+    
     .other_page_section {
         display: flex;
         gap: 5%;
         justify-content: center;
     }
+    
     .other_page_section img{
-        width: 5%;
+        width: 8%;
     }
   </style>
 </head>
@@ -64,22 +67,64 @@
     <div class="swiper-wrapper">
       <div class="swiper-slide">
         <div class="first_page_section">
-            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+            <img src="assest/img001.jpg" alt="">
         </div>
         <div class="other_page_section">
-            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
-            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
-            <img src="https://lh3.googleusercontent.com/pw/AJFCJaXlsjqKJ8i_Oy1itDmEiTjBJd1o007gsZika7G9m-VO8kptA-Qk4G3R9euXhq_ijt5JsJMfhe87LC3Hvy6rYAvjz4SIoLjMQwI8b9AxQJSyJFLkxwG28a1UockYfXkBr9tJzTwoWmxchc-Ypb-2s8rZFw=w704-h939-s-no?authuser=0" alt="">
+            <img src="assest/img002.jpg" alt="">
+            <img src="assest/img003.jpg" alt="">
+            <img src="assest/img004.jpg" alt="">
         </div>
       </div>
-      <div class="swiper-slide">Slide 2</div>
-      <div class="swiper-slide">Slide 3</div>
-      <div class="swiper-slide">Slide 4</div>
-      <div class="swiper-slide">Slide 5</div>
-      <div class="swiper-slide">Slide 6</div>
-      <div class="swiper-slide">Slide 7</div>
-      <div class="swiper-slide">Slide 8</div>
-      <div class="swiper-slide">Slide 9</div>
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="assest/img005.jpg" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="assest/img006.jpg" alt="">
+            <img src="assest/img007.jpg" alt="">
+            <img src="assest/img008.jpg" alt="">
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="assest/img009.jpg" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="assest/img010.jpg" alt="">
+            <img src="assest/img011.jpg" alt="">
+            <img src="assest/img012.jpg" alt="">
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="assest/img001.jpg" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="assest/img002.jpg" alt="">
+            <img src="assest/img003.jpg" alt="">
+            <img src="assest/img004.jpg" alt="">
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="assest/img005.jpg" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="assest/img006.jpg" alt="">
+            <img src="assest/img007.jpg" alt="">
+            <img src="assest/img008.jpg" alt="">
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <div class="first_page_section">
+            <img src="assest/img009.jpg" alt="">
+        </div>
+        <div class="other_page_section">
+            <img src="assest/img010.jpg" alt="">
+            <img src="assest/img011.jpg" alt="">
+            <img src="assest/img012.jpg" alt="">
+        </div>
+      </div>
     </div>
     <div class="swiper-button-next"></div>
     <div class="swiper-button-prev"></div>

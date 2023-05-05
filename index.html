@@ -1,161 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Document Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+    <!-- Styling section -->
+    <style>
+      * {
+        /* border box will help in making all the elements stay in the parent element without overflowing */
+        box-sizing: border-box;
+        /* resetting all margin and paddings to 0 */
+        margin: 0;
+        padding: 0;
+      }
 
-<head>
-  <meta charset="utf-8" />
-  <title>Document Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
-  <!-- Link Swiper's CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
-
-  <!-- Demo styles -->
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: #eee;
-      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      color: #000;
-    }
-
-    .swiper {
-      width: 100%;
-      height: 100dvh;
-    }
-
-    .swiper-slide {
-      text-align: center;
-      background: #ffd7b0;
-      display: grid;
-      grid-template-rows: 2fr 1fr;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .swiper-wrapper {
+      body {
+        /* make the page be 90% in width and be ata the center of the screen with the set margin */
+        width: 90%;
+        margin: auto;
+        margin-top: .5%;
+        /* have two section in the page */
+        display: grid;
+        grid-template-columns: 1.2fr 2fr;
+        gap: 2.5%;
+        /* set the height of the page */
         min-height: 90dvh;
-    }
+        background-color: antiquewhite;
+      }
 
-    .first_page_section {
+      aside {
+        display: grid;
+        grid-template-columns: .2fr 10fr .2fr;
+        gap: 1%;
+        margin: auto;
+      }
 
-    }
+      aside .nav {
+        position: relative;
+        top: 50%;
+        background-color: #fff;
+        height: 2%;
+      }
 
-    .first_page_section img{
-        width: 20%;
-    }
-    
-    .other_page_section {
+      aside .nav a {
+        cursor: pointer;
+      }
+
+      aside img {
+        /* set the width n height the image */
+        max-width: 100%;
+        max-height: 100dvh;
+        border: solid #000 2px;
+      }
+
+      main {
+        /* have 2 sections for more images and the section for  */
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 1%;
+      }
+
+      .image_details {
+        background-color: rgb(252, 252, 252);
+        border: solid #000 2px;
+      }
+
+      .other_images {
+        /* make the images be displayed in inline format with equal spaces between them */
         display: flex;
-        gap: 5%;
-        justify-content: center;
-    }
-    
-    .other_page_section img{
-        width: 8%;
-    }
-  </style>
-</head>
+        justify-content: space-around;
+        gap: .9%;
+        overflow-y: scroll;
+        background-color: #fff;
+      }
 
-<body>
-  <!-- Swiper -->
-  <div class="swiper mySwiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img001.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img002.jpg" alt="">
-            <img src="assest/img003.jpg" alt="">
-            <img src="assest/img004.jpg" alt="">
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img005.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img006.jpg" alt="">
-            <img src="assest/img007.jpg" alt="">
-            <img src="assest/img008.jpg" alt="">
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img009.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img010.jpg" alt="">
-            <img src="assest/img011.jpg" alt="">
-            <img src="assest/img012.jpg" alt="">
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img001.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img002.jpg" alt="">
-            <img src="assest/img003.jpg" alt="">
-            <img src="assest/img004.jpg" alt="">
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img005.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img006.jpg" alt="">
-            <img src="assest/img007.jpg" alt="">
-            <img src="assest/img008.jpg" alt="">
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <div class="first_page_section">
-            <img src="assest/img009.jpg" alt="">
-        </div>
-        <div class="other_page_section">
-            <img src="assest/img010.jpg" alt="">
-            <img src="assest/img011.jpg" alt="">
-            <img src="assest/img012.jpg" alt="">
-        </div>
-      </div>
-    </div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-pagination"></div>
-  </div>
-
-  <!-- Swiper JS -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-
-  <!-- Initialize Swiper -->
-  <script>
-    var swiper = new Swiper(".mySwiper", {
-      cssMode: true,
+      .other_images img {
+        width: 30%;
+        border: solid #000 2px;
+      }
       
-    //   Show the navigation buttons
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-    //   Show the pagination at the bottom
-      pagination: {
-        el: ".swiper-pagination",
-      },
-
-    //   Allow control with the mouse wheel
-      mousewheel: true,
-
-    //   Allow control with the keyboard arrow buttons
-      keyboard: true,
-    });
-  </script>
-</body>
-
+      /* styling for mobile screens */
+      @media (max-width: 768px) {
+          body {
+          /* make the page be 90% in width and be ata the center of the screen with the set margin */
+          /* width: 100%; */
+          margin: auto;
+          margin-top: .5%;
+          /* have two section in the page */
+          display: flex;
+          background-color: antiquewhite;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="nav w3-left">
+        <a onclick="plusDivs(-1)">&#10094;</a>
+      </div>
+      <div>
+        <img src="assest/img001.jpg" alt="">
+      </div>
+      <div class="nav w3-right">
+        <a onclick="plusDivs(1)">&#10095;</a>
+      </div>
+    </aside>
+    <main>
+      <div class="image_details">
+        .
+      </div>
+      <div class="other_images">
+        <img src="assest/img002.jpg" alt="">
+        <img src="assest/img003.jpg" alt="">
+        <img src="assest/img004.jpg" alt="">
+        <img src="assest/img002.jpg" alt="">
+        <img src="assest/img003.jpg" alt="">
+        <img src="assest/img004.jpg" alt="">
+      </div>
+    </main>
+  </body>
 </html>

@@ -1,0 +1,102 @@
+* {
+  /* border box will help in making all the elements stay in the parent element without overflowing */
+  box-sizing: border-box;
+  /* resetting the page margin and padding 0 */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 35% 65%;
+  grid-template-rows: 10% 40% 50%;
+  grid-template-areas:
+    "main header"
+    "main transcribe"
+    "main other_pages";
+}
+
+#first_page {
+  display: grid;
+  grid-area: main;
+  background-color: rgba(176, 176, 176, 0.763);
+  border: 1px solid #000;
+  width: 100%;
+}
+
+#first_page img {
+  width: 100%;
+  margin: auto;
+}
+
+header {
+  display: flex;
+  gap: 0.5%;
+  grid-area: header;
+}
+
+fieldset legend{
+    text-align: center;
+}
+
+fieldset {
+  display: flex;
+    
+}
+fieldset button {
+    width: 50%;
+}
+
+button img {
+  max-width: 25%;
+}
+
+#transcribe {
+  grid-area: transcribe;
+  overflow-y: scroll;
+}
+
+#transcribe label {
+  display: block;
+  margin: 2% 4%;
+  font-size: 130%;
+}
+
+#other_pages {
+  display: flex;
+  z-index: 10;
+  justify-content: space-evenly;
+  overflow-x: scroll;
+  gap: 2%;
+  grid-area: other_pages;
+  background-color: rgba(89, 53, 53, 0.484);
+  border: 1px solid #000;
+}
+
+#other_pages img {
+  width: 30%;
+  margin: auto 0;
+}
+
+@media (max-width: 830px) {
+  body {
+    display: block;
+  }
+
+  #first_page img {
+    padding: 2%;
+  }
+
+  #transcribe {
+    grid-area: transcribe;
+  }
+
+  #other_pages {
+    grid-area: other_pages;
+  }
+
+  #other_pages img {
+    padding: 2% 0;
+  }
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Document Viewer</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <!--
+      Code for controlling this page-->
+    <script type="module">
+      //
+      // Imoprt the code for loading the 1st titl from mashama.js file
+      import { load_mutiples_titles } from "./mashamba.js";
+      //
+      // As soon as this page is loaded, execute the load_title_1 function
+      window.onload = async () => await load_mutiples_titles();
+    </script>
+  </head>
+  <body>
+    <!-- The body with two sections first page section and the other sections -->
+    <!-- the second section with the header and the other pages section-->
+    <header>
+      <fieldset>
+          <legend>Navigate</legend>
+        <button id="previous_btn">Previous</button>
+        <button id="nxt_btn">Next</button>
+      </fieldset>
+      <fieldset>
+          <legend>Pan</legend>
+        <button><img src="./assets/icons/left_arrow.png" alt="" /></button>
+        <button><img src="./assets/icons/up_arrow.png" alt="" /></button>
+        <button><img src="./assets/icons/right_arrow.png" alt="" /></button>
+        <button><img src="./assets/icons/down_arrow.png" alt="" /></button>
+      </fieldset>
+      <fieldset>
+          <legend>Search</legend>
+        <input type="text" placeholder="Search.." name="search" />
+        <button>Go</button>
+      </fieldset>
+      <fieldset>
+          <legend>Zoom Image</legend>
+        <button><img src="./assets/icons/zoom_in.png" alt="" /></button>
+        <button><img src="./assets/icons/zoom_out.png" alt="" /></button>
+      </fieldset>
+    </header>
+    <!-- the first page section -->
+    <div id="first_page"></div>
+    <!-- Image details section -->
+    <div id="transcribe">
+      <label> Type: <input id="type" type="text"/> </label>
+      <label> Title No: <input id="num" type="text" /> </label>
+      <label> Approximate Area: <input type="text" /> </label>
+      <label> Registry Sheet No: <input type="text"/> </label>
+      <label> Persons Of Interest: <input type="text" /> </label>
+    </div>
+    <!-- Display all the other pages of the documents -->
+    <div id="other_pages"></div>
+    
+  </body>
+</html>

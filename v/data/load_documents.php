@@ -10,32 +10,48 @@ include '../../../schema/v/code/questionnaire.php';
 //Define a new questionnaire for uploading data to the mutall_chama database
 $q = new \mutall\questionnaire('mutall_mashamba');
 
-
 //Create the csv table
-$cert_of_title_docs = new csv(
+$docs = new csv(
         //
         //The name of the text table    
-        'cert_of_title_docs',
+        'docs',
         //
         //The filename that holds the (milk) data    
-        'G:\mutall_projects\mutall_mashamba\v\data\cert_of_title.csv'
+        'D:\mutall_projects\mashamba\v\data\nelsonfiles.csv',
+        //
+        //The header colmumn names. If empty, it means the user wishes 
+        //to use the default values
+        [],
+        //
+        //Text used as the value separator
+        ",",
+        //
+        //The row number, starting from 0, where column names are stored
+        //A negative number means that file has no header     
+        0,
+        //
+        //The row number, starting from 0, where the table's body starts.        
+        1
 );
 
 $layouts = [
     //
     //CSV table layout that is the source of data
-    $cert_of_title_docs,
+    $docs,
     //
     //Source data table columns TO data model mapping using label layouts
-    [new lookup('cert_of_title_docs', 'name'), 'image', 'name'],
-    [new lookup('cert_of_title_docs', 'title'), 'document', 'id'],
-    [new lookup('cert_of_title_docs', 'folder'), 'folder', 'name'],
-    [new lookup('cert_of_title_docs', 'page'), 'page', 'num'],
-    [new lookup('cert_of_title_docs', 'url'), 'image', 'url'],
-    ['cert_of_title', 'category', 'name'],
+    [new lookup('docs', 'name'), 'image', 'name'],
+    [new lookup('docs', 'title'), 'document', 'id'],
+    [new lookup('docs', 'folder'), 'folder', 'name'],
+    [new lookup('docs', 'page'), 'page', 'num'],
+    [new lookup('docs', 'url'), 'image', 'url'],
+    ['mutation', 'category', 'name'],
     //
     //Scalar mappings to force creation of (abstract) titles and mutations
     [null, 'title', 'title'],
+    [null, 'mutation', 'mutation']
+    
 ];
 
 echo $q->load_common($layouts);
+

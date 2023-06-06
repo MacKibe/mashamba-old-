@@ -1,57 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>Document Viewer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
-    <link rel="stylesheet" href="styles.css">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="./mashamba.css" />
     <!--
       Code for controlling this page-->
     <script type="module">
-        //
-        // Import the code for loading the 1st titl from mashama.js file
-        import {load_title_1} from "./mashamba.js";
-        //
-        // As soon as this page is loaded, execute the load_title_1 function
-        window.onload = async ()=> await load_title_1();
+      //
+      // Import the code for loading titles from mashama.js file
+      import { load_mutiples_titles } from "./mashamba.js";
+      //
+      // As soon as this page is loaded, execute the load_title_1 function
+      window.onload = async () => await load_mutiples_titles();
     </script>
   </head>
   <body>
     <!-- The body with two sections first page section and the other sections -->
     <!-- the second section with the header and the other pages section-->
     <header>
-      <button>Previous</button>
-      <button>t</button>
-      <button></button>
-      <button></button>
-      <button></button>
-      <input type="text" placeholder="Search.." name="search">
-      <button><img src="./assets/icons/zoom_in.png" alt=""></button>
-      <button><img src="./assets/icons/zoom_out.png" alt=""></button>
-      <button>Next</button>
+      <fieldset>
+        <legend>Navigate</legend>
+        <button id="previous_btn">Previous</button>
+        <button id="nxt_btn">Next</button>
+      </fieldset>
+      <fieldset>
+        <legend>Search</legend>
+        <input type="text" placeholder="Search.." name="search" />
+        <button>Go</button>
+      </fieldset>
+      <fieldset>
+        <legend>Zoom Image</legend>
+        <button><img src="./assets/icons/zoom_in.png" alt="" /></button>
+        <button><img src="./assets/icons/zoom_out.png" alt="" /></button>
+      </fieldset>
     </header>
     <!-- the first page section -->
-    <div id="first_page">
-        
-    </div>
+    <div id="first_page" class="first_page"></div>
     <!-- Image details section -->
-    <div id="transcribe">
-      <label>
-        Title No: <input type="text" readonly>
-      </label>
-      <label>
-        Approximate Area: <input type="text" readonly>
-      </label>
-      <label>
-        Registry Sheet No: <input type="text" readonly>
-      </label>
-      <label>
-        Persons Of Interest: <input type="text" readonly>
-      </label>
+    <div id="transcribe" class="transcribe">
+      <label> Document Id <input id="documentId" type="text" /> </label>
+      <label> Title No: <input id="titleNo" type="text" /> </label>
+      <label> Category: <input id="category" type="text" /> </label>
+      <label> Approximate Area: <input id="area" type="text" /> </label>
+      <label> Registry Sheet No: <input id="regno" type="text" /> </label>
+      <label> Persons Of Interest: <input id="owner" type="text" /> </label>
+      <button id="save_data_btn">Save</button>
     </div>
     <!-- Display all the other pages of the documents -->
-    <div id="other_pages">
-        
-    </div>
+    <div id="other_pages" class="other_pages"></div>
   </body>
 </html>

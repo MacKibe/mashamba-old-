@@ -1,12 +1,17 @@
 select 
-    document.id as document, 
-    category.name as category,
-    json_arrayagg(json_object('num', page.num, 'url', image.url, 'name', image.name)) as pages
+    folder.name as folder,
+    document.id as document,
+    json_arrayagg(json_object('num', image.page, 'url', image.url, 'name', image.name)) as pages,
+    title.id as title_no,
+    category.name as catgory,
+    title.area as  area,
+    title.owner as owner,
+    null as regno
 from 
-    document
-    inner join category on document.category=category.category
-    inner join page on page.document= document.document
-    inner join image on page.image = image.image
-where not image.url=''
+    image
+    inner join document on image.document = document.document
+    inner join folder on document.folder = folder.folder
+    left join title on document.document = title.document
+    left join category on document.category=category.category
 group by
-    document, category;
+    document.document;

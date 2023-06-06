@@ -31,7 +31,7 @@ class scanner extends table{
     //stream
     function read(): \Generator/* array<basic_value>|false */{
         //
-        //Yield all the files from thh home directory and all the subdirectories 
+        //Yield all the files from this home directory and all the subdirectories 
         //there under
         yield from $this->scan("");
     }

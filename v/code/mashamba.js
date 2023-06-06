@@ -1,31 +1,21 @@
 //Access the server services by importing all the facilities that are in the
 //server module in the schema foler of our library
-import * as server from "./../../../schema/v/code/server.js";
+import * as server from "../../../schema/v/code/server.js";
 //
 //Declare the elements of interests
 //
 //The image element in in the panel one
-<<<<<<< HEAD
 var first_page;
 //
 //This is the panel that represents the other pages of the document
 var other_pages;
-=======
-var image_one_panel;
-//
-//This is the panel that represents the other pages of the document
-var other_pages_panel;
->>>>>>> refs/remotes/origin/main
 //
 // This is the next button element for displaying the next document
 var next_button;
 //
-<<<<<<< HEAD
 // This is the save button element for saving data to the database
 var save_data_button;
 //
-=======
->>>>>>> refs/remotes/origin/main
 // This is the previous button element for displaying the previous document
 var previous_button;
 //
@@ -35,32 +25,20 @@ var counter = 0;
 //Declare the trsnscrption elements
 var category;
 //
-<<<<<<< HEAD
 //Save the results of interrogating the database to an array of documnets   
-var documents;
-=======
-//Get the data to drive our page. It has teh following structure:-
-//{document, category, pages} The pages is a json text that is an array indviual page scans
-//with the followinf strucrure:= [..., {num, url, name}, ...]
-var data = await server.exec('database', ['mutall_mashamba', false], 'get_sql_data', ['/mutall_mashamba/v/code/mashamba.sql', 'file']);
->>>>>>> refs/remotes/origin/main
+var docs;
 //
 //Loading multipe titles that can move from one title to ythe other
 export async function load_mutiples_titles() {
     //
     //Initialize the variabls that represent html elemens in ou page, including settinup the event listeners
-<<<<<<< HEAD
     await initialize();
-=======
-    initialize();
->>>>>>> refs/remotes/origin/main
     //
     //Load the current title
     load_title();
 }
 //
 //Initializing the element will
-<<<<<<< HEAD
 async function initialize() {
     //
     //intialize the page one panel
@@ -68,60 +46,16 @@ async function initialize() {
     //
     //intialize the other pages panel
     other_pages = document.getElementById('other_pages');
-=======
-function initialize() {
-    //
-    //intialize the page one panel
-    image_one_panel = document.getElementById('first_page');
-    //
-    //intialize the other pages panel
-    other_pages_panel = document.getElementById('other_pages');
     //
     //initialize the next button
     next_button = document.getElementById('nxt_btn');
     //
     //initialize the previous button
     previous_button = document.getElementById('previous_btn');
-    //
-    // Attach an event listener for moving to the document
-    next_button.onclick = () => move_next();
-    //
-    // Attach an event listener for moving to the document
-    previous_button.onclick = () => move_previous();
-    //
-    //Initialize the transcription elements
-    category = document.getElementById('type');
-}
-//
-// It loads the current title to othrt home page depending on the counter settings
-async function load_title() {
-    //
-    //clear the panels
-    image_one_panel.innerHTML = "";
-    other_pages_panel.innerHTML = "";
-    //
-    //Get the pages of the given document number
-    const pages = JSON.parse(data[counter].pages);
-    //
-    //Get url of of the first page
-    const url = pages[counter].url;
->>>>>>> refs/remotes/origin/main
-    //
-    //initialize the next button
-    next_button = document.getElementById('nxt_btn');
-    //
-<<<<<<< HEAD
-    //initialize the previous button
-    previous_button = document.getElementById('previous_btn');
-=======
-    //Attach the image to page1
-    image_one_panel.appendChild(image1);
->>>>>>> refs/remotes/origin/main
     //
     //initialize the save button
     save_data_button = document.getElementById('save_data_btn');
     //
-<<<<<<< HEAD
     // Attach an event listener for moving to the document
     next_button.onclick = () => move_next();
     //
@@ -136,7 +70,7 @@ async function load_title() {
     //
     //Read the data from the masjambe database and save it ith the documents
     //array
-    documents = await server.exec('database', ['mutall_mashamba', false], 'get_sql_data', ['/mashamba/v/code/mashamba.sql', 'file']);
+    docs = await server.exec('database', ['mutall_mashamba', false], 'get_sql_data', ['/mashamba/v/code/mashamba.sql', 'file']);
 }
 //
 // Load the current document tothehome page depending
@@ -146,13 +80,13 @@ async function load_title() {
     clear_panels();
     //
     // Get the pages of the given current document number
-    const pages = JSON.parse(documents[counter].pages);
+    const pages = JSON.parse(docs[counter].pages);
     //
     // Create the first page, including its image
     create_first_page(pages[0]);
     //
     // Fill the transcription panel
-    for (const key in document)
+    for (const key of ['document', 'title_no', 'category', 'area', 'owner', 'regno'])
         fill_transcriptions(key);
     //
     // Create and show show the other_pages panel
@@ -181,7 +115,16 @@ function clear_panels() {
     //
     // Clear all the inputs of the transcription panel, by looping over all
     // the keys of a document, except the pages key
-    for (const key in document) {
+    /*
+    document:string,
+        pages:string,
+        title_no:string,
+        category:string,
+        area:number,
+        owner:string,
+        regno:string
+    */
+    for (const key of ['document', 'title_no', 'category', 'area', 'owner', 'regno']) {
         //
         // Skip the pages key (because it is a special key)
         if (key === 'pages')
@@ -217,39 +160,12 @@ function move_next() {
     // Increate the counter by 1
     counter++;
     // Load tthe titles using the new counter
-=======
-    //Fill the transiption panel
-    fill_transcriptions();
-    //
-    //Show the rest of the pages
-    for (let i = 1; i < pages.length; i++) {
-        const page = pages[i];
-        //
-        // Create an image element for this page
-        const image = document.createElement('img');
-        //
-        // Set the source of the image to the URL of the page
-        image.src = page.url;
-        //
-        // Attach the image element to the other-pages div element
-        other_pages_panel.appendChild(image);
-    }
-}
-//
-// this will help in moving to next document
-function move_next() {
-    //
-    //Increate the counter by 1
-    counter++;
-    //Load tthe titles using the new counter
->>>>>>> refs/remotes/origin/main
     load_title();
 }
 //
 // this will help in moving to next document
 function move_previous() {
     //
-<<<<<<< HEAD
     // Increate the counter by 1
     counter--;
     // Load tthe titles using the new counter
@@ -267,22 +183,10 @@ function fill_transcriptions(key) {
     const element = document.getElementById(key);
     //
     //Set its value to the corersponding one in the current document
-    element.value = String(documents[counter][key]);
+    element.value = String(docs[counter][key]);
 }
 //
 // Get the data from the input elements and send and save them to various 
 // tables in the mutall_mashamba database 
 function save_data() {
-=======
-    //Increate the counter by 1
-    counter--;
-    //Load tthe titles using the new counter
-    load_title();
-}
-function fill_transcriptions() {
-    //
-    const title = data[counter];
-    //
-    category.value = title.category;
->>>>>>> refs/remotes/origin/main
 }

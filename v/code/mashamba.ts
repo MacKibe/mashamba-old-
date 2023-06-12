@@ -23,7 +23,7 @@ var previous_button: HTMLButtonElement;
 var counter:number=0;
 //
 //Declare the trsnscrption elements
-var category:HTMLInputElement;
+var input_Elements:HTMLInputElement;
 
 //
 //Get the documents to drive our page. A document has the following structure:-
@@ -83,7 +83,7 @@ async function initialize(){
     save_data_button.onclick = () => save_data();
     //
     //Initialize the transcription elements
-    category=<HTMLInputElement>document.getElementById('type');
+    input_Elements=<HTMLInputElement>document.getElementById('type');
     //
     //Read the data from the masjambe database and save it ith the documents
     //array
@@ -94,7 +94,6 @@ async function initialize(){
      ['/mashamba/v/code/mashamba.sql', 'file']
   );
 }
-
 //
 // Load the current document tothehome page depending
 async function load_title(){
@@ -114,9 +113,7 @@ async function load_title(){
     //
     // Create and show show the other_pages panel
     for (let i = 1; i < pages.length; i++) create_other_page(pages[i]);
-    
 }
-
 function create_other_page(page:page){
     //
     // Create an image element for this page
@@ -128,7 +125,6 @@ function create_other_page(page:page){
     // Attach the image element to the other-pages div element
     other_pages.appendChild(image);
 }
-
 //clear all the 3 panels
 function clear_panels(){
     //

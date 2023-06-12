@@ -23,7 +23,7 @@ var previous_button;
 var counter = 0;
 //
 //Declare the trsnscrption elements
-var category;
+var input_Elements;
 //
 //Save the results of interrogating the database to an array of documnets   
 var docs;
@@ -66,7 +66,7 @@ async function initialize() {
     save_data_button.onclick = () => save_data();
     //
     //Initialize the transcription elements
-    category = document.getElementById('type');
+    input_Elements = document.getElementById('type');
     //
     //Read the data from the masjambe database and save it ith the documents
     //array

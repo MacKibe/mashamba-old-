@@ -35,7 +35,8 @@ header {
   grid-area: header;
   justify-content: space-between;
   max-height: 100%;
-  padding: 1% .5%;
+  padding: 1% 0.5%;
+  background-color: #8d6e6e8f;
 }
 
 fieldset legend {
@@ -71,13 +72,22 @@ button img {
 
 .transcribe {
   grid-area: transcribe;
+  font-size: 120%;
+  margin-inline: 2%;
+}
+
+.transcribe ul {
   columns: 2;
+}
+
+.transcribe li {
+  list-style: none;
+  margin-block-start: 5%;
 }
 
 .transcribe label {
   display: block;
-  margin: 10% 0;
-  font-size: 130%;
+  font-weight: bolder;
 }
 
 .transcribe button {
@@ -110,8 +120,7 @@ button img {
     padding: 2%;
   }
 
-  .transcribe {
-    grid-area: transcribe;
+  .transcribe ul {
     columns: 1;
   }
 

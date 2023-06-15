@@ -43,13 +43,42 @@
     <div id="first_page" class="first_page"></div>
     <!-- Image details section -->
     <div id="transcribe" class="transcribe">
-      <label> Document Id <input id="document" type="text" size="30"/> </label>
-      <label> Title No: <input id="title_no" type="text" size="40"/> </label>
-      <label> Category: <input id="category" type="text" size="10"/> </label>
-      <label> Approximate Area: <input id="area" type="text" size="10"/> </label>
-      <label> Registry Sheet No: <input id="regno" type="text" size="10" /> </label>
-      <label> Persons Of Interest: <input id="owner" type="text" size="30" /> </label>
-      <button id="save_data_btn">Save</button>
+      <form action="">
+        <ul>
+          <li>
+            <label for="document"> Document Id </label>
+            <input id="document" type="text" size="30" readonly />
+          </li>
+          <li>
+            <label for="title_no"> Title No: </label>
+            <input id="title_no" type="text" size="40" />
+          </li>
+          <li>
+            <label for="category"> Category: </label>
+            <!-- <input id="category" type="text" size="10" /> -->
+            <input list="docs" type="text" id="category" />
+            <datalist id="docs">
+              <option value="mutation"></option>
+              <option value="title deed"></option>
+            </datalist>
+          </li>
+          <li>
+            <label for="area"> Approximate Area: </label>
+            <input id="area" type="text" size="7" />
+          </li>
+          <li>
+            <label for="regno"> Registry Sheet No: </label>
+            <input id="regno" type="text" size="10" />
+          </li>
+          <li>
+            <label for="owner"> Persons Of Interest: </label>
+            <textarea id="owner" cols="40" rows="5"></textarea>
+          </li>
+          <li>
+            <button id="save_data_btn">Save</button>
+          </li>
+        </ul>
+      </form>
     </div>
     <!-- Display all the other pages of the documents -->
     <div id="other_pages" class="other_pages"></div>

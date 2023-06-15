@@ -25,7 +25,7 @@ var counter = 0;
 //Declare the trsnscrption elements
 var input_Elements;
 //
-//Save the results of interrogating the database to an array of documnets   
+//Save the results of interrogating the database to an array of documnets
 var docs;
 //
 //Loading multipe titles that can move from one title to ythe other
@@ -42,19 +42,19 @@ export async function load_mutiples_titles() {
 async function initialize() {
     //
     //intialize the page one panel
-    first_page = document.getElementById('first_page');
+    first_page = document.getElementById("first_page");
     //
     //intialize the other pages panel
-    other_pages = document.getElementById('other_pages');
+    other_pages = document.getElementById("other_pages");
     //
     //initialize the next button
-    next_button = document.getElementById('nxt_btn');
+    next_button = document.getElementById("nxt_btn");
     //
     //initialize the previous button
-    previous_button = document.getElementById('previous_btn');
+    previous_button = document.getElementById("previous_btn");
     //
     //initialize the save button
-    save_data_button = document.getElementById('save_data_btn');
+    save_data_button = (document.getElementById("save_data_btn"));
     //
     // Attach an event listener for moving to the document
     next_button.onclick = () => move_next();
@@ -66,11 +66,11 @@ async function initialize() {
     save_data_button.onclick = () => save_data();
     //
     //Initialize the transcription elements
-    input_Elements = document.getElementById('type');
+    input_Elements = document.getElementById("type");
     //
     //Read the data from the masjambe database and save it ith the documents
     //array
-    docs = await server.exec('database', ['mutall_mashamba', false], 'get_sql_data', ['/mashamba/v/code/mashamba.sql', 'file']);
+    docs = await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba.sql", "file"]);
 }
 //
 // Load the current document tothehome page depending
@@ -86,7 +86,14 @@ async function load_title() {
     create_first_page(pages[0]);
     //
     // Fill the transcription panel
-    for (const key of ['document', 'title_no', 'category', 'area', 'owner', 'regno'])
+    for (const key of [
+        "document",
+        "title_no",
+        "category",
+        "area",
+        "owner",
+        "regno",
+    ])
         fill_transcriptions(key);
     //
     // Create and show show the other_pages panel
@@ -96,7 +103,7 @@ async function load_title() {
 function create_other_page(page) {
     //
     // Create an image element for this page
-    const image = document.createElement('img');
+    const image = document.createElement("img");
     //
     // Set the source of the image to the URL of the page
     image.src = `http://localhost${page.url}`;
@@ -107,7 +114,7 @@ function create_other_page(page) {
 //clear all the 3 panels
 function clear_panels() {
     //
-    // Clear the first page 
+    // Clear the first page
     first_page.innerHTML = "";
     //
     // Clear the other_pages panels
@@ -116,25 +123,32 @@ function clear_panels() {
     // Clear all the inputs of the transcription panel, by looping over all
     // the keys of a document, except the pages key
     /*
-    document:string,
-        pages:string,
-        title_no:string,
-        category:string,
-        area:number,
-        owner:string,
-        regno:string
-    */
-    for (const key of ['document', 'title_no', 'category', 'area', 'owner', 'regno']) {
+      document:string,
+          pages:string,
+          title_no:string,
+          category:string,
+          area:number,
+          owner:string,
+          regno:string
+      */
+    for (const key of [
+        "document",
+        "title_no",
+        "category",
+        "area",
+        "owner",
+        "regno",
+    ]) {
         //
         // Skip the pages key (because it is a special key)
-        if (key === 'pages')
+        if (key === "pages")
             continue;
         //
         // Get the named element
         const element = document.getElementById(key);
         //
         // Se its value to empty
-        element.value = '';
+        element.value = "";
     }
 }
 //
@@ -145,7 +159,7 @@ function create_first_page(page) {
     const url = page.url;
     //
     // Create the first page image
-    const image1 = document.createElement('img');
+    const image1 = document.createElement("img");
     //
     // Attach the image to page1
     first_page.appendChild(image1);
@@ -171,12 +185,13 @@ function move_previous() {
     // Load tthe titles using the new counter
     load_title();
 }
-// Fill the transcriptions, by transferring the values from from the global 
+// Fill the transcriptions, by transferring the values from from the global
 // array, data array to
 // the transciption panel
 function fill_transcriptions(key) {
+    //
     //Skip the pages key (because it is a special key)
-    if (key === 'pages')
+    if (key === "pages")
         return;
     //
     //Get the named element
@@ -185,8 +200,35 @@ function fill_transcriptions(key) {
     //Set its value to the corersponding one in the current document
     element.value = String(docs[counter][key]);
 }
-//
 // Get the data from the input elements and send and save them to various 
 // tables in the mutall_mashamba database 
 function save_data() {
+    // Retrieve the values from the input elements
+    const documentValue = document.getElementById('document').value;
+    const titleNoValue = document.getElementById('title_no').value;
+    const categoryValue = document.getElementById('category').value;
+    const areaValue = parseFloat(document.getElementById('area').value);
+    const ownerValue = document.getElementById('owner').value;
+    const regNoValue = document.getElementById('regno').value;
+    // Prepare the data to be saved
+    const data = {
+        document: documentValue,
+        title_no: titleNoValue,
+        category: categoryValue,
+        area: areaValue,
+        owner: ownerValue,
+        regno: regNoValue
+    };
+    // Send the data to the server to be saved
+    server.exec('database', ['mutall_mashamba', false], 'save_data', [data])
+        .then(response => {
+        // Handle the server response
+        console.log(response);
+        // Perform any necessary actions after successful data saving
+    })
+        .catch(error => {
+        // Handle any errors that occurred during the data saving process
+        console.error(error);
+        // Perform any necessary error handling actions
+    });
 }

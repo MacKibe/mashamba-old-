@@ -77,6 +77,9 @@ button img {
   margin-inline: 2%;
   color: #395c6b;
 }
+.transcribe input {
+  font-size: 110%;
+}
 
 .transcribe ul {
   columns: 2;
@@ -84,7 +87,7 @@ button img {
 
 .transcribe li {
   list-style: none;
-  margin-block-start: 5%;
+  margin-block-start: 3%;
 }
 
 .transcribe label {

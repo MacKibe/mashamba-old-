@@ -2,6 +2,9 @@
 //server module in the schema foler of our library
 import * as server from "../../../schema/v/code/server.js";
 //
+//Access the library needed for saving data to a database (from Javascript)
+import * as quest from  "../../../schema/v/code/questionnaire.js";
+//
 //Declare the elements of interests
 //
 //The image element in in the panel one
@@ -171,7 +174,7 @@ function clear_panels() {
     const element = <HTMLInputElement>document.getElementById(key);
     //
     // Se its value to empty
-    element.value = "";
+    element.value = ".";
   }
 }
 
@@ -228,9 +231,61 @@ function fill_transcriptions(key: keyof doc) {
   element.value = String(docs[counter][key]);
 }
 
+type keys = "document"|"title_no"|"category"|"area"|"owner"|"regno";
+//
 // Get the data from the input elements and send and save them to various 
 // tables in the mutall_mashamba database 
-function save_data(key: keyof doc) {
+async function save_data() {
+    //
+    //Collect the data to save, as layouts
+    //
+    //Get the ids of the html elements that hp;d the data
+    const ids:{[key in keys]:[string, string]} = {
+        document:['document', 'id'], 
+        title_no:['title', 'id'],
+        category:['category','name'],
+        area:['document','area'],
+        owner:['document','person'],
+        regno:['document','regno']
+    }
+    //
+    //The elements will now bw mapped with layouts
+    const layouts:Array<quest.layout> = Object.keys(ids).map(k=>{
+        //
+        //Coerce k into of of the document keys
+        const key = <keys>k;
+        //
+        //Get the values of the elements
+        const value = (<HTMLInputElement>document.getElementById(key)).value;
+        //
+        //Show the entity name where the data will be saved in the database 
+        const ename:string = ids[key][0];
+        //
+        //Show which column in the database the value will be saved
+        const cname:string = ids[key][1];
+        //
+        //Get the values ready for saving
+        return [value, ename, cname];
+    });
+    //
+    //Use questionnaire to save the data and get the results
+    const result:'Ok'|string = await server.exec(
+        //
+        //The name of the PHP class to use is questionnaire
+        "questionnaire",
+        //
+        //The constructor parameter of questionnare is one: database name
+        ['mutall_mashamba'],
+        //
+        //The name of the questionnare method to use is the common lodig system
+        'load_common',
+        //
+        //The mandory parameter of the load commom method is one: layput
+        [layouts] 
+    )
+    //
+    //Report the result
+    alert(result);
     
 }
 

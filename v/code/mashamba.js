@@ -148,7 +148,7 @@ function clear_panels() {
         const element = document.getElementById(key);
         //
         // Se its value to empty
-        element.value = "";
+        element.value = ".";
     }
 }
 //
@@ -202,33 +202,53 @@ function fill_transcriptions(key) {
 }
 // Get the data from the input elements and send and save them to various 
 // tables in the mutall_mashamba database 
-function save_data() {
-    // Retrieve the values from the input elements
-    const documentValue = document.getElementById('document').value;
-    const titleNoValue = document.getElementById('title_no').value;
-    const categoryValue = document.getElementById('category').value;
-    const areaValue = parseFloat(document.getElementById('area').value);
-    const ownerValue = document.getElementById('owner').value;
-    const regNoValue = document.getElementById('regno').value;
-    // Prepare the data to be saved
-    const data = {
-        document: documentValue,
-        title_no: titleNoValue,
-        category: categoryValue,
-        area: areaValue,
-        owner: ownerValue,
-        regno: regNoValue
+async function save_data() {
+    //
+    //Collect the data to save, as layouts
+    //
+    //Get the ids of the html elements that hp;d the data
+    const ids = {
+        document: ['document', 'id'],
+        title_no: ['title', 'id'],
+        category: ['category', 'name'],
+        area: ['document', 'area'],
+        owner: ['document', 'person'],
+        regno: ['document', 'regno']
     };
-    // Send the data to the server to be saved
-    server.exec('database', ['mutall_mashamba', false], 'save_data', [data])
-        .then(response => {
-        // Handle the server response
-        console.log(response);
-        // Perform any necessary actions after successful data saving
-    })
-        .catch(error => {
-        // Handle any errors that occurred during the data saving process
-        console.error(error);
-        // Perform any necessary error handling actions
+    //
+    const layouts = Object.keys(ids).map(k => {
+        //
+        //Coerce k into of of the document keys
+        const key = k;
+        //
+        //
+        const value = document.getElementById(key).value;
+        //
+        //
+        const ename = ids[key][0];
+        //
+        //
+        const cname = ids[key][1];
+        //
+        // 
+        return [value, ename, cname];
     });
+    //
+    //Use questionnaire to save the data and get the results
+    const result = await server.exec(
+    //
+    //The name of the PHP class to use is questionnaire
+    "questionnaire", 
+    //
+    //The constructor parameter of questionnare is one: database name
+    ['mutall_mashamba'], 
+    //
+    //The name of the questionnare method to use is the common lodig system
+    'load_common', 
+    //
+    //The mandory parameter of the load commom method is one: layput
+    [layouts]);
+    //
+    //Report the result
+    alert(result);
 }

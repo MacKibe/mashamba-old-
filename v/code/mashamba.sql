@@ -4,8 +4,8 @@ select
     json_arrayagg(json_object('num', image.page, 'url', image.url, 'name', image.name)) as pages,
     title.id as title_no,
     category.name as category,
-    title.area as  area,
-    title.owner as owner,
+    document.area as  area,
+    document.person as owner,
     document.regno as regno
 from image
     inner join document on image.document = document.document

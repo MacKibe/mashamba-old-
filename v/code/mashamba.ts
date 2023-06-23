@@ -16,9 +16,6 @@ var other_pages: HTMLElement;
 // This is the next button element for displaying the next document
 var next_button: HTMLButtonElement;
 //
-// This is the save button element for saving data to the database
-var save_data_button: HTMLButtonElement;
-//
 // This is the previous button element for displaying the previous document
 var previous_button: HTMLButtonElement;
 //
@@ -73,11 +70,6 @@ async function initialize() {
   //initialize the previous button
   previous_button = <HTMLButtonElement>document.getElementById("previous_btn");
   //
-  //initialize the save button
-  save_data_button = <HTMLButtonElement>(
-    document.getElementById("save_data_btn")
-  );
-  //
   // Attach an event listener for moving to the document
   next_button.onclick = () => move_next();
   //
@@ -85,7 +77,7 @@ async function initialize() {
   previous_button.onclick = () => move_previous();
   //
   // Attach an event listener for moving to the document
-  save_data_button.onclick = () => save_data();
+  document.getElementById("save_data_btn")!.onclick = () => save_data();
   //
   //Initialize the transcription elements
   input_Elements = <HTMLInputElement>document.getElementById("type");
@@ -123,7 +115,7 @@ async function load_title() {
   ])
     fill_transcriptions(<keyof doc>key);
   //
-  // Create and show show the other_pages panel
+  // Create and show the other_pages panel
   for (let i = 1; i < pages.length; i++) create_other_page(pages[i]);
 }
 
@@ -174,7 +166,7 @@ function clear_panels() {
     const element = <HTMLInputElement>document.getElementById(key);
     //
     // Se its value to empty
-    element.value = ".";
+    element.value = "";
   }
 }
 
@@ -227,8 +219,11 @@ function fill_transcriptions(key: keyof doc) {
   //Get the named element
   const element = <HTMLInputElement>document.getElementById(key);
   //
-  //Set its value to the corersponding one in the current document
-  element.value = String(docs[counter][key]);
+  //Get the value that maches the key
+  const value = docs[counter][key];
+  //
+  //Set the element vale only if the value is not null
+  if (value!==null)element.value = String(value);
 }
 
 type keys = "document"|"title_no"|"category"|"area"|"owner"|"regno";
@@ -282,7 +277,7 @@ async function save_data() {
         //
         //The mandory parameter of the load commom method is one: layput
         [layouts] 
-    )
+    );
     //
     //Report the result
     alert(result);

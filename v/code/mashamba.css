@@ -75,9 +75,11 @@ button img {
   grid-area: transcribe;
   font-size: 130%;
   margin-inline: 2%;
-  color: #395c6b;
+  color: #000;
 }
-.transcribe input {
+
+.transcribe input,
+textarea {
   font-size: 110%;
 }
 

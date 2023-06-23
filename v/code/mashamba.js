@@ -13,9 +13,6 @@ var other_pages;
 // This is the next button element for displaying the next document
 var next_button;
 //
-// This is the save button element for saving data to the database
-var save_data_button;
-//
 // This is the previous button element for displaying the previous document
 var previous_button;
 //
@@ -53,9 +50,6 @@ async function initialize() {
     //initialize the previous button
     previous_button = document.getElementById("previous_btn");
     //
-    //initialize the save button
-    save_data_button = (document.getElementById("save_data_btn"));
-    //
     // Attach an event listener for moving to the document
     next_button.onclick = () => move_next();
     //
@@ -63,7 +57,7 @@ async function initialize() {
     previous_button.onclick = () => move_previous();
     //
     // Attach an event listener for moving to the document
-    save_data_button.onclick = () => save_data();
+    document.getElementById("save_data_btn").onclick = () => save_data();
     //
     //Initialize the transcription elements
     input_Elements = document.getElementById("type");
@@ -96,7 +90,7 @@ async function load_title() {
     ])
         fill_transcriptions(key);
     //
-    // Create and show show the other_pages panel
+    // Create and show the other_pages panel
     for (let i = 1; i < pages.length; i++)
         create_other_page(pages[i]);
 }
@@ -148,7 +142,7 @@ function clear_panels() {
         const element = document.getElementById(key);
         //
         // Se its value to empty
-        element.value = ".";
+        element.value = "";
     }
 }
 //
@@ -197,9 +191,14 @@ function fill_transcriptions(key) {
     //Get the named element
     const element = document.getElementById(key);
     //
-    //Set its value to the corersponding one in the current document
-    element.value = String(docs[counter][key]);
+    //Get the value that maches the key
+    const value = docs[counter][key];
+    //
+    //Set the element vale only if the value is not null
+    if (value !== null)
+        element.value = String(value);
 }
+//
 // Get the data from the input elements and send and save them to various 
 // tables in the mutall_mashamba database 
 async function save_data() {
@@ -216,21 +215,22 @@ async function save_data() {
         regno: ['document', 'regno']
     };
     //
+    //The elements will now bw mapped with layouts
     const layouts = Object.keys(ids).map(k => {
         //
         //Coerce k into of of the document keys
         const key = k;
         //
-        //
+        //Get the values of the elements
         const value = document.getElementById(key).value;
         //
-        //
+        //Show the entity name where the data will be saved in the database 
         const ename = ids[key][0];
         //
-        //
+        //Show which column in the database the value will be saved
         const cname = ids[key][1];
         //
-        // 
+        //Get the values ready for saving
         return [value, ename, cname];
     });
     //

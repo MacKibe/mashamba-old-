@@ -12,11 +12,18 @@
       Code for controlling this page-->
     <script type="module">
       //
-      // Import the code for loading titles from mashama.js file
-      import { load_mutiples_titles } from "./mashamba.js";
+      // Import the class that carries our code, from mashama.js file
+      import { mashamba } from "./mashamba.js";
       //
-      // As soon as this page is loaded, execute the load_title_1 function
-      window.onload = async () => await load_mutiples_titles();
+      //After the page loads....
+      window.onload = async () => {
+        //
+        //Create the mashmba page
+        const Page = new mashamba();
+        //
+        //Show the masmba system,
+        await Page.show_panels();
+      };
     </script>
   </head>
   <body>
@@ -33,51 +40,42 @@
         <input type="text" placeholder="Search.." name="search" />
         <button>Go</button>
       </fieldset>
-      <fieldset>
-        <legend>Zoom Image</legend>
-        <button><img src="./assets/icons/zoom_in.png" alt="" /></button>
-        <button><img src="./assets/icons/zoom_out.png" alt="" /></button>
-      </fieldset>
     </header>
     <!-- the first page section -->
     <div id="first_page" class="first_page"></div>
     <!-- Image details section -->
     <div id="transcribe" class="transcribe">
-      <form action="">
-        <ul>
-          <li>
-            <label for="document"> Document Id </label>
-            <input id="document" type="text" size="30" readonly />
-          </li>
-          <li>
-            <label for="title_no"> Title No: </label>
-            <input id="title_no" type="text" size="40" />
-          </li>
-          <li>
-            <label for="category"> Category: </label>
-            <input list="docs" type="text" id="category" />
-            <datalist id="docs">
-              <option value="mutation"></option>
-              <option value="title deed"></option>
-            </datalist>
-          </li>
-          <li>
-            <label for="area"> Approximate Area: </label>
-            <input id="area" type="text" size="7" />
-          </li>
-          <li>
-            <label for="regno"> Registry Sheet No: </label>
-            <input id="regno" type="text" size="10" />
-          </li>
-          <li>
-            <label for="owner"> Persons Of Interest: </label>
-            <textarea id="owner" cols="40" rows="5"></textarea>
-          </li>
-          <li>
-            <button id="save_data_btn">Save</button>
-          </li>
-        </ul>
-      </form>
+      <ul>
+        <li>
+          <label for="document"> Document Id:</label>
+          <input id="document" class="document" type="text" readonly />
+        </li>
+        <li>
+          <label for="title_no"> Title No: </label>
+          <input id="title_no" type="text" />
+        </li>
+        <li>
+          <label for="category"> Category: </label>
+          <input list="docs" type="text" id="category" />
+          <datalist id="docs">
+            <option value="mutation"></option>
+            <option value="title deed"></option>
+          </datalist>
+        </li>
+        <li>
+          <label for="area"> Approximate Area:</label>
+          <input id="area" type="text" />
+        </li>
+        <li>
+          <label for="regno"> Registry Sheet No:</label>
+          <input id="regno" type="text" />
+        </li>
+        <li>
+          <label for="owner"> Persons Of Interest:</label>
+          <textarea id="owner" rows="1"></textarea>
+        </li>
+      </ul>
+      <button id="save_data_btn">Save</button>
     </div>
     <!-- Display all the other pages of the documents -->
     <div id="other_pages" class="other_pages"></div>

@@ -1,4 +1,3 @@
--- SELECT * FROM `title` WHERE id = 'null';
 select 
     folder.name as folder,
     document.id as document,

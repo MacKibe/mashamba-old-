@@ -62,6 +62,12 @@ export class mashamba extends view.page {
     //
     // Attach an event listener for saving the transcriptions
     document.getElementById("save_data_btn")!.onclick = () => this.save_data();
+    //
+    // Attach an event listener for zooming in.
+    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
+    //
+    // Attach an event listener for Zooming out.
+    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
   }
   //
   //Replace the show pannels method with our own version
@@ -147,14 +153,15 @@ export class mashamba extends view.page {
     this.first_page.appendChild(image1);
     //
     // Add event listener to change border color when clicked
-//    image1.addEventListener("click", () => {
-//      image1.classList.toggle("imgSelected");
-//    });
+    image1.addEventListener("click", () => {
+      image1.classList.toggle("imgSelected");
+    });
     //
     // Set the url of the page
     image1.src = `http://localhost${url}`;
   }
-
+  //
+  //
   create_other_page(page: page) {
     //
     // Create an image element for this page
@@ -167,27 +174,12 @@ export class mashamba extends view.page {
     image.src = `http://localhost${page.url}`;
     //
     // Add event listener to change border color when clicked
-//    image.addEventListener("click", () => {
-//      image.classList.toggle("imgSelected");
-//    });
+    image.addEventListener("click", () => {
+      image.classList.toggle("imgSelected");
+    });
     //
     // Attach the image element to the other-pages div element
     this.other_pages.appendChild(image);
-  }
-  // Call the function to add onclick events to all images with the class "image"
-  selectImage() {
-      //
-    // Get all images with the class "image".
-    const images = document.querySelectorAll(".image");
-    //
-    // Add onclick event to each image
-    images.forEach((image) => {
-      image.addEventListener("click", () => {
-          //
-        // Changes className
-        image.classList.toggle("imgSelected");
-      });
-    });
   }
   //
   //clear all the 3 panels
@@ -305,22 +297,11 @@ export class mashamba extends view.page {
   }
   //
   // Zooming out the image
-  zoomIn() {
-    const image = this.first_page.querySelector("img");
-    if (image) {
-      //
-      // Get the dimensions of the image
-      const currentWidth = image.clientWidth;
-      const currentHeight = image.clientHeight;
-      //
-      // Multiply the dimensions by 20%
-      const newWidth = currentWidth * 1.2;
-      const newHeight = currentHeight * 1.2;
-      //
-      // Assign the new dimnsions to the image
-      image.style.width = `${newWidth}px`;
-      image.style.height = `${newHeight}px`;
-    }
+  ZoomIn() {
+    let width = image.clientWidth;
+    let height = image.clientHeight;
+    image.style.width = width + 50 + "px";
+    image.style.height = height + 50 + "px";
   }
   //
   // Zooming out the image

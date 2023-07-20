@@ -15,6 +15,9 @@ export class mashamba extends view.page {
     //This is the panel that represents the other pages of the document
     other_pages;
     //
+    // This is a dialog modal that contains the login system.
+    login_modal;
+    //
     //The couner for documents being displayed
     counter = 0;
     //
@@ -40,11 +43,17 @@ export class mashamba extends view.page {
         // Attach an event listener for saving the transcriptions
         document.getElementById("save_data_btn").onclick = () => this.save_data();
         //
-        // Attach an event listener for zooming in.
-        document.getElementById("zoom_in_btn").onclick = () => this.zoomIn();
+        // Attach an event listener to open the login modal
+        document.getElementById("open_login_modal").onclick = () => this.open_modal();
         //
-        // Attach an event listener for Zooming out.
-        document.getElementById("zoom_out_btn").onclick = () => this.zoomOut();
+        // The login modal
+        this.login_modal = document.getElementById("loginModal");
+        //
+        // Attach an event listener for zooming in.
+        //    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
+        //    //
+        //    // Attach an event listener for Zooming out.
+        //    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
     }
     //
     //Replace the show pannels method with our own version
@@ -59,11 +68,35 @@ export class mashamba extends view.page {
     //
     // this will help in moving to next document
     move_next() {
+        // Check if there are any empty required fields before moving to the next document
+        if (this.areRequiredFieldsEmpty()) {
+            alert("Please fill all required fields before moving to the next document.");
+            return;
+        }
         //
         // Increate the counter by 1
         this.counter++;
         // Load tthe titles using the new counter
         this.load_title();
+    }
+    areRequiredFieldsEmpty() {
+        // Define an array of keys for the required fields
+        const requiredKeys = [
+            "document",
+            "title_no",
+            "category",
+            "area",
+            "owner",
+            "regno",
+        ];
+        // Loop through the required keys and check if any of the corresponding input fields are empty
+        for (const key of requiredKeys) {
+            const element = document.getElementById(key);
+            if (!element.value.trim()) {
+                return true;
+            }
+        }
+        return false;
     }
     //
     // this will help in moving to next document
@@ -261,41 +294,7 @@ export class mashamba extends view.page {
         //Report the result.
         alert(result);
     }
-    // Zooming in the image
-    zoomIn() {
-        const imageContainer = this.first_page.querySelector(".image-container");
-        if (imageContainer) {
-            const image = imageContainer.querySelector("img");
-            if (image) {
-                //
-                // Get the current scale of the image container
-                const currentScale = parseFloat(getComputedStyle(image).getPropertyValue("transform").split(",")[3]);
-                //
-                // Multiply the scale by 1.2 to zoom in
-                const newScale = currentScale * 1.2;
-                //
-                // Assign the new scale to the image
-                image.style.transform = `scale(${newScale})`;
-            }
-        }
-    }
-    //
-    // Zooming out the image
-    zoomOut() {
-        const image = this.first_page.querySelector("img");
-        if (image) {
-            //
-            // Get the dimensions of the image
-            const currentWidth = image.clientWidth;
-            const currentHeight = image.clientHeight;
-            //
-            // Decrease the dimensions by 20%
-            const newWidth = currentWidth / 1.2;
-            const newHeight = currentHeight / 1.2;
-            //
-            // Assign the new dimnsions to the image
-            image.style.width = `${newWidth}px`;
-            image.style.height = `${newHeight}px`;
-        }
+    open_modal() {
+        this.login_modal.show();
     }
 }

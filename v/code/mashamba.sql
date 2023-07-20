@@ -1,4 +1,3 @@
--- SELECT * FROM `title` WHERE id = 'null';
 select 
     folder.name as folder,
     document.id as document,
@@ -13,5 +12,7 @@ from image
     inner join folder on document.folder = folder.folder
     left join title on document.document = title.document
     left join category on document.category = category.category
+WHERE title.id
+    is null
 group by
     document.document;

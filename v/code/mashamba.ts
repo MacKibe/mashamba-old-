@@ -37,6 +37,9 @@ export class mashamba extends view.page {
   //This is the panel that represents the other pages of the document
   public other_pages: HTMLElement;
   //
+  // This is a dialog modal that contains the login system.
+  public login_modal: HTMLDialogElement;
+  //
   //The couner for documents being displayed
   public counter: number = 0;
   //
@@ -63,11 +66,18 @@ export class mashamba extends view.page {
     // Attach an event listener for saving the transcriptions
     document.getElementById("save_data_btn")!.onclick = () => this.save_data();
     //
-    // Attach an event listener for zooming in.
-    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
+    // Attach an event listener to open the login modal
+    document.getElementById("open_login_modal")!.onclick = () =>
+      this.open_modal();
     //
-    // Attach an event listener for Zooming out.
-    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
+    // The login modal
+    this.login_modal = document.getElementById("loginModal")!;
+    //
+    // Attach an event listener for zooming in.
+    //    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
+    //    //
+    //    // Attach an event listener for Zooming out.
+    //    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
   }
   //
   //Replace the show pannels method with our own version
@@ -90,11 +100,44 @@ export class mashamba extends view.page {
   // this will help in moving to next document
   move_next() {
     //
+    // Check if there are any empty required fields before moving to the next document
+    if (this.areRequiredFieldsEmpty()) {
+      alert(
+        "Please fill all required fields before moving to the next document."
+      );
+      return;
+    }
+
+    //
     // Increate the counter by 1
     this.counter++;
 
     // Load tthe titles using the new counter
     this.load_title();
+  }
+  //
+  // Checking if fields are empty
+  areRequiredFieldsEmpty(): boolean {
+    //
+    // Define an array of keys for the required fields
+    const requiredKeys: keys[] = [
+      "document",
+      "title_no",
+      "category",
+      "area",
+      "owner",
+      "regno",
+    ];
+    //
+    // Loop through the required keys and check if any of the corresponding input fields are empty
+    for (const key of requiredKeys) {
+      const element = document.getElementById(key) as HTMLInputElement;
+      if (!element.value.trim()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   //
@@ -295,31 +338,59 @@ export class mashamba extends view.page {
     //Report the result.
     alert(result);
   }
-  //
-  // Zooming out the image
-  ZoomIn() {
-    let width = image.clientWidth;
-    let height = image.clientHeight;
-    image.style.width = width + 50 + "px";
-    image.style.height = height + 50 + "px";
+
+  open_modal() {
+    this.login_modal.show();
   }
+
+  //  performLogin() {
+  //      const username = document.getElementById('username').value;
+  //      const password = document.getElementById('password').value;
   //
-  // Zooming out the image
-  zoomOut() {
-    const image = this.first_page.querySelector("img");
-    if (image) {
-      //
-      // Get the dimensions of the image
-      const currentWidth = image.clientWidth;
-      const currentHeight = image.clientHeight;
-      //
-      // Decrease the dimensions by 20%
-      const newWidth = currentWidth / 1.2;
-      const newHeight = currentHeight / 1.2;
-      //
-      // Assign the new dimnsions to the image
-      image.style.width = `${newWidth}px`;
-      image.style.height = `${newHeight}px`;
-    }
-  }
+  //      // Here, you can perform your login logic using the provided username and password
+  //      // For this example, let's just display an alert with the entered credentials
+  //      alert(`Username: ${username}\nPassword: ${password}`);
+  //
+  //      // Close the dialog after login is performed
+  //      const loginModal = document.getElementById('loginModal');
+  //      loginModal.close();
+  //    }
+  //
+  // Zooming in the image
+  //  zoomIn() {
+  //    const image = this.first_page.querySelector("img");
+  //    if (image) {
+  //      //
+  //      // Get the dimensions of the image
+  //      const currentWidth = image.clientWidth;
+  //      const currentHeight = image.clientHeight;
+  //      //
+  //      // Decrease the dimensions by 20%
+  //      const newWidth = currentWidth * 1.2;
+  //      const newHeight = currentHeight * 1.2;
+  //      //
+  //      // Assign the new dimnsions to the image
+  //      image.style.width = `${newWidth}px`;
+  //      image.style.height = `${newHeight}px`;
+  //    }
+  //  }
+  //  //
+  //  // Zooming out the image
+  //  zoomOut() {
+  //    const image = this.first_page.querySelector("img");
+  //    if (image) {
+  //      //
+  //      // Get the dimensions of the image
+  //      const currentWidth = image.clientWidth;
+  //      const currentHeight = image.clientHeight;
+  //      //
+  //      // Decrease the dimensions by 20%
+  //      const newWidth = currentWidth / 1.2;
+  //      const newHeight = currentHeight / 1.2;
+  //      //
+  //      // Assign the new dimnsions to the image
+  //      image.style.width = `${newWidth}px`;
+  //      image.style.height = `${newHeight}px`;
+  //    }
+  //  }
 }

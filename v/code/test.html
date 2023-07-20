@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Document</title>
+    <script>
+      const zoomInBtn = document.getElementById("zoom_in_btn");
+      const imageContainer = document.querySelector(".image-container");
+      zoomInBtn.addEventListener("click", () => {
+        imageContainer.classList.toggle("zoomed");
+      });
+    </script>
+    <style>
+      .image-container {
+        width: 400px; /* Set the desired width of the container */
+        height: 300px; /* Set the desired height of the container */
+        overflow: hidden; /* Hide the overflow of the image */
+        position: relative; /* Add positioning to the container */
+      }
+
+      .image-container img {
+        position: absolute; /* Position the image within the container */
+        top: 0; /* Position from the top edge of the container */
+        left: 0; /* Position from the left edge of the container */
+        width: 100%; /* Set the image width to fill the container */
+        height: 100%; /* Set the image height to fill the container */
+        transition: transform 0.3s ease; /* Add a smooth transition effect */
+        transform-origin: center center; /* Set the zoom origin to the center of the image */
+      }
+
+      .image-container.zoomed img {
+        width: 120%; /* Increase the image width */
+        height: 120%; /* Increase the image height */
+        transform: translate(
+          -10%,
+          -10%
+        ); /* Adjust the translate values to center the zoomed image */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="image-container">
+      <img
+        id="first_page"
+        src="../images/COPIES Title - deeds OTHERS/1/img253.jpg"
+        alt="Image"
+      />
+    </div>
+
+    <button id="zoom_in_btn">Zoom In</button>
+  </body>
+</html>

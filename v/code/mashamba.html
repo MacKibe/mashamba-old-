@@ -10,16 +10,19 @@
     <link rel="stylesheet" href="./mashamba.css" />
     <script type="module">
       //
-      // Import the class that carries our code, from mashama.js file
+      // Import the class that carries our code, from mashamba.js file
       import { mashamba } from "./mashamba.js";
       //
       //After the page loads....
       window.onload = async () => {
         //
-        //Create the mashmba page
+        //Create the mashamba page
         const Page = new mashamba();
         //
-        //Show the masmba system,
+        //Expose the page var outside
+        window.Page = Page;
+        //
+        //Show the mashamba system,
         await Page.show_panels();
       };
     </script>
@@ -74,7 +77,7 @@
         </button>
       </fieldset>
       <fieldset>
-        <button id="open_login_modal">Login</button>
+        <button onclick="Page.sign()">Login</button>
       </fieldset>
     </header>
     <!-- The login modal -->
@@ -131,7 +134,7 @@
           <textarea id="owner" rows="2" required></textarea>
         </li>
       </ul>
-      <button id="save_data_btn">Save</button>
+      <button onclick="Page.save()">Save</button>
     </form>
     <!-- Display all the other pages of the documents -->
     <div id="other_pages" class="other_pages"></div>

@@ -4,10 +4,12 @@ import * as server from "../../../schema/v/code/server.js";
 //
 //Access the library needed for saving data to a database from Javascript
 import * as quest from "../../../schema/v/code/questionnaire.js";
+//
+//Import the registration library.
 
+//
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
-
 //
 //Get the documents to drive our page. A document has the following structure:-
 type doc = {
@@ -35,10 +37,7 @@ export class mashamba extends view.page {
   public first_page: HTMLElement;
   //
   //This is the panel that represents the other pages of the document
-  public other_pages: HTMLElement;
-  //
-  // This is a dialog modal that contains the login system.
-  public login_modal: HTMLDialogElement;
+  public other_pages: HTMLElement; 
   //
   //The couner for documents being displayed
   public counter: number = 0;
@@ -64,20 +63,7 @@ export class mashamba extends view.page {
       this.move_previous();
     //
     // Attach an event listener for saving the transcriptions
-    document.getElementById("save_data_btn")!.onclick = () => this.save_data();
-    //
-    // Attach an event listener to open the login modal
-    document.getElementById("open_login_modal")!.onclick = () =>
-      this.open_modal();
-    //
-    // The login modal
-    this.login_modal = document.getElementById("loginModal")!;
-    //
-    // Attach an event listener for zooming in.
-    //    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
-    //    //
-    //    // Attach an event listener for Zooming out.
-    //    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
+    document.getElementById("save_data_btn")!.onclick = () => this.save_to_dbase();
   }
   //
   //Replace the show pannels method with our own version
@@ -282,11 +268,23 @@ export class mashamba extends view.page {
     //Set the element vale only if the value is not null
     if (value !== null) element.value = String(value);
   }
-
+  //
+  //
+  async save(){
+    //
+    //save to dbase
+    const pk:number = await this.save_to_dbase();
+    //
+    //Get the transcriber
+    const User = this.get_user();
+    //
+    //Register the transcriber who did the saving
+    this.register_user(pk, User);
+  }
   //
   // Get the data from the input elements and send and save them to various
   // tables in the mutall_mashamba database
-  async save_data() {
+  async save_to_dbase() {
     //
     //Collect the data to save, as layouts
     //
@@ -338,59 +336,9 @@ export class mashamba extends view.page {
     //Report the result.
     alert(result);
   }
+  //
+  // This is sign in or up for mashamba users 
+  sign(){
 
-  open_modal() {
-    this.login_modal.show();
   }
-
-  //  performLogin() {
-  //      const username = document.getElementById('username').value;
-  //      const password = document.getElementById('password').value;
-  //
-  //      // Here, you can perform your login logic using the provided username and password
-  //      // For this example, let's just display an alert with the entered credentials
-  //      alert(`Username: ${username}\nPassword: ${password}`);
-  //
-  //      // Close the dialog after login is performed
-  //      const loginModal = document.getElementById('loginModal');
-  //      loginModal.close();
-  //    }
-  //
-  // Zooming in the image
-  //  zoomIn() {
-  //    const image = this.first_page.querySelector("img");
-  //    if (image) {
-  //      //
-  //      // Get the dimensions of the image
-  //      const currentWidth = image.clientWidth;
-  //      const currentHeight = image.clientHeight;
-  //      //
-  //      // Decrease the dimensions by 20%
-  //      const newWidth = currentWidth * 1.2;
-  //      const newHeight = currentHeight * 1.2;
-  //      //
-  //      // Assign the new dimnsions to the image
-  //      image.style.width = `${newWidth}px`;
-  //      image.style.height = `${newHeight}px`;
-  //    }
-  //  }
-  //  //
-  //  // Zooming out the image
-  //  zoomOut() {
-  //    const image = this.first_page.querySelector("img");
-  //    if (image) {
-  //      //
-  //      // Get the dimensions of the image
-  //      const currentWidth = image.clientWidth;
-  //      const currentHeight = image.clientHeight;
-  //      //
-  //      // Decrease the dimensions by 20%
-  //      const newWidth = currentWidth / 1.2;
-  //      const newHeight = currentHeight / 1.2;
-  //      //
-  //      // Assign the new dimnsions to the image
-  //      image.style.width = `${newWidth}px`;
-  //      image.style.height = `${newHeight}px`;
-  //    }
-  //  }
 }

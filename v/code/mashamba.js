@@ -1,6 +1,9 @@
 //Access the server services by importing all the facilities that are in the
 //server module in the schema foler of our library
 import * as server from "../../../schema/v/code/server.js";
+//
+//Import the registration library.
+//
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
 //
@@ -14,9 +17,6 @@ export class mashamba extends view.page {
     //
     //This is the panel that represents the other pages of the document
     other_pages;
-    //
-    // This is a dialog modal that contains the login system.
-    login_modal;
     //
     //The couner for documents being displayed
     counter = 0;
@@ -41,19 +41,7 @@ export class mashamba extends view.page {
         document.getElementById("previous_btn").onclick = () => this.move_previous();
         //
         // Attach an event listener for saving the transcriptions
-        document.getElementById("save_data_btn").onclick = () => this.save_data();
-        //
-        // Attach an event listener to open the login modal
-        document.getElementById("open_login_modal").onclick = () => this.open_modal();
-        //
-        // The login modal
-        this.login_modal = document.getElementById("loginModal");
-        //
-        // Attach an event listener for zooming in.
-        //    document.getElementById("zoom_in_btn")!.onclick = () => this.zoomIn();
-        //    //
-        //    // Attach an event listener for Zooming out.
-        //    document.getElementById("zoom_out_btn")!.onclick = () => this.zoomOut();
+        document.getElementById("save_data_btn").onclick = () => this.save_to_dbase();
     }
     //
     //Replace the show pannels method with our own version
@@ -68,6 +56,7 @@ export class mashamba extends view.page {
     //
     // this will help in moving to next document
     move_next() {
+        //
         // Check if there are any empty required fields before moving to the next document
         if (this.areRequiredFieldsEmpty()) {
             alert("Please fill all required fields before moving to the next document.");
@@ -79,7 +68,10 @@ export class mashamba extends view.page {
         // Load tthe titles using the new counter
         this.load_title();
     }
+    //
+    // Checking if fields are empty
     areRequiredFieldsEmpty() {
+        //
         // Define an array of keys for the required fields
         const requiredKeys = [
             "document",
@@ -89,6 +81,7 @@ export class mashamba extends view.page {
             "owner",
             "regno",
         ];
+        //
         // Loop through the required keys and check if any of the corresponding input fields are empty
         for (const key of requiredKeys) {
             const element = document.getElementById(key);
@@ -241,9 +234,22 @@ export class mashamba extends view.page {
             element.value = String(value);
     }
     //
+    //
+    async save() {
+        //
+        //save to dbase
+        const pk = await this.save_to_dbase();
+        //
+        //Get the transcriber
+        const User = this.get_user();
+        //
+        //Register the transcriber who did the saving
+        this.register_user(pk, User);
+    }
+    //
     // Get the data from the input elements and send and save them to various
     // tables in the mutall_mashamba database
-    async save_data() {
+    async save_to_dbase() {
         //
         //Collect the data to save, as layouts
         //
@@ -294,7 +300,8 @@ export class mashamba extends view.page {
         //Report the result.
         alert(result);
     }
-    open_modal() {
-        this.login_modal.show();
+    //
+    // This is sign in or up for mashamba users 
+    sign() {
     }
 }

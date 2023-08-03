@@ -11,9 +11,9 @@
     <script type="module">
       //
       // Import the class that carries our code, from mashamba.js file
-      import { mashamba } from "./mashamba.js";
+      import { mashamba } from "./mashambaCopy.js";
       //
-      //After the page loads....
+      //After the page loads to the following...
       window.onload = async () => {
         //
         //Create the mashamba page
@@ -80,20 +80,6 @@
         <button onclick="Page.sign()">Login</button>
       </fieldset>
     </header>
-    <!-- The login modal -->
-    <dialog id="loginModal">
-      <h2>Login</h2>
-      <form>
-        <label for="username">Username:</label>
-        <input type="text" id="username" required /><br />
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" required /><br />
-
-        <button type="submit">Login</button>
-        Do have an account?<button type="submit">Sign up</button>
-      </form>
-    </dialog>
     <!-- the first page section -->
     <div id="first_page" class="first_page"></div>
     <!-- Image details section -->

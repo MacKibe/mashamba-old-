@@ -26,7 +26,7 @@ type doc = {
 type page = { num: string; url: string; name: string };
 //
 //
-type keys = "document" | "title_no" | "category" | "area" | "owner" | "regno";
+type keys = "document" | "title_no" | "category" | "area" | "owner" | "regno" | "surname";
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -270,21 +270,10 @@ export class mashamba extends view.page {
   }
   //
   //
-  async save(){
-    //
-    //save to dbase
-    const pk:number = await this.save_to_dbase();
-    //
-    //Get the transcriber
-    const User = this.get_user();
-    //
-    //Register the transcriber who did the saving
-    this.register_user(pk, User);
-  }
-  //
-  // Get the data from the input elements and send and save them to various
+  // Get the transcription data {including the current logged in intern) from
+  // the input form then save them to various
   // tables in the mutall_mashamba database
-  async save_to_dbase() {
+  async save() {
     //
     //Collect the data to save, as layouts
     //
@@ -296,6 +285,7 @@ export class mashamba extends view.page {
       area: ["document", "area"],
       owner: ["document", "person"],
       regno: ["document", "regno"],
+      surname: ["intern","surname"],
     };
     //
     //The elements will now be mapped to their layouts
@@ -304,8 +294,12 @@ export class mashamba extends view.page {
       //Coerce k into of of the document keys
       const key = <keys>k;
       //
-      //Get the values of the elements
-      const value = (<HTMLInputElement>document.getElementById(key)).value;
+      //Define a string value
+      let value:string;
+      //
+      //If the key is a surname use the reg system to get the intern logged in
+      if (key === 'surname') value = this.get_current_intern(); 
+      else value = (<HTMLInputElement>document.getElementById(key)).value;
       //
       //Show the entity name where the data will be saved in the database
       const ename: string = ids[key][0];
@@ -322,7 +316,9 @@ export class mashamba extends view.page {
       //
       //The name of the PHP class to use is questionnaire
       "questionnaire",
-      //
+   
+   
+          //
       //The constructor parameter of questionnare is one: database name
       ["mutall_mashamba"],
       //
@@ -336,9 +332,12 @@ export class mashamba extends view.page {
     //Report the result.
     alert(result);
   }
-  //
-  // This is sign in or up for mashamba users 
-  sign(){
-
+  
+  // 
+  get_current_intern(){
+    //
+    // Get the current logged in intern, if not logging in use the login system
+    // developed by Joshua.
+    
   }
 }

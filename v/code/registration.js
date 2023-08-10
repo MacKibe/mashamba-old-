@@ -185,7 +185,7 @@ export class registration extends popup {
         //
         //Translate the text to a matching io
         switch (io_type) {
-            case 'radios': return this.checked_input_value(env);
+            case 'radios': return this.get_radio_value(env);
             //
             //Any orher case is a mistatch and should be reported to the programmer
             default:
@@ -199,7 +199,7 @@ export class registration extends popup {
                     //
                     //Depending on the type....
                     switch (type) {
-                        case 'text': return this.simple_input_value(env);
+                        case 'text': return this.get_text_value(env);
                         default:
                             throw new mutall_error(`'${type}' is not a valid io-type`);
                     }
@@ -211,7 +211,7 @@ export class registration extends popup {
     }
     //
     //Retrieve value from a simple input, that is, text-based input
-    simple_input_value(env) {
+    get_text_value(env) {
         //
         const element = env.querySelector('input');
         //
@@ -243,7 +243,7 @@ export class registration extends popup {
     
     In this case, fieldset is the envlop element
     */
-    checked_input_value(env) {
+    get_radio_value(env) {
         //
         //Collect all the radio buttons in under this envelop
         const radios = env.querySelectorAll('input[type=radio]');
@@ -309,11 +309,8 @@ export class registration extends popup {
         //
         //Check that the local storage has someone logged in.
         //If no one is logged in, return undefined
-        if (localStorage.length === 0)
-            return;
         //
         //if there's someone logged in, return the user
-        return current_user;
     }
     //
     //Retrieve the current logged in user and remove the user from the window storage

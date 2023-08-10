@@ -1,9 +1,6 @@
 //Access the server services by importing all the facilities that are in the
 //server module in the schema foler of our library
 import * as server from "../../../schema/v/code/server.js";
-//
-//Import the registration library.
-//
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
 //
@@ -41,7 +38,7 @@ export class mashamba extends view.page {
         document.getElementById("previous_btn").onclick = () => this.move_previous();
         //
         // Attach an event listener for saving the transcriptions
-        document.getElementById("save_data_btn").onclick = () => this.save_to_dbase();
+        document.getElementById("save_data_btn").onclick = () => this.save_data();
     }
     //
     //Replace the show pannels method with our own version
@@ -234,22 +231,9 @@ export class mashamba extends view.page {
             element.value = String(value);
     }
     //
-    //
-    async save() {
-        //
-        //save to dbase
-        const pk = await this.save_to_dbase();
-        //
-        //Get the transcriber
-        const User = this.get_user();
-        //
-        //Register the transcriber who did the saving
-        this.register_user(pk, User);
-    }
-    //
     // Get the data from the input elements and send and save them to various
     // tables in the mutall_mashamba database
-    async save_to_dbase() {
+    async save_data() {
         //
         //Collect the data to save, as layouts
         //
@@ -299,9 +283,5 @@ export class mashamba extends view.page {
         //
         //Report the result.
         alert(result);
-    }
-    //
-    // This is sign in or up for mashamba users 
-    sign() {
     }
 }

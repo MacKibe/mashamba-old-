@@ -3,9 +3,12 @@
 import * as server from "../../../schema/v/code/server.js";
 //
 //Import the registration library.
+//Access the registration services from the registration class
+import { registration } from "./registration.js";
 //
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
+import { mutall_error } from "../../../schema/v/code/schema.js";
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -41,7 +44,7 @@ export class mashamba extends view.page {
         document.getElementById("previous_btn").onclick = () => this.move_previous();
         //
         // Attach an event listener for saving the transcriptions
-        document.getElementById("save_data_btn").onclick = () => this.save_to_dbase();
+        document.getElementById("save_data_btn").onclick = () => this.save();
     }
     //
     //Replace the show pannels method with our own version
@@ -52,6 +55,23 @@ export class mashamba extends view.page {
         //
         //Load the current title
         this.load_title();
+    }
+    //
+    //Assuming
+    //First assume the images are on the server,
+    // next assume its on another computer.
+    // Data = content(files) + metadata(interfaces).
+    async load_images(data) {
+        //
+        // 1. If you dont have the data then collect it from the user.
+        const data_to_use = data ?? this.get_data_from_user();
+        //
+        // At this point I have the data i want to use.
+        //
+        // 2. Use the data to determine whether the content is on the server
+        // If its not on the server then transfer it from your PC to server.
+        //
+        // 3. Load the metadata to the appropriate database, this is unconditional.
     }
     //
     // this will help in moving to next document
@@ -101,7 +121,7 @@ export class mashamba extends view.page {
         this.load_title();
     }
     //
-    // Load the current document tothehome page depending
+    // Load the current document to the home page depending
     async load_title() {
         //
         // Clear all the 3 panels, viz., first_page, other_pages and transcription
@@ -155,22 +175,29 @@ export class mashamba extends view.page {
     //
     //
     create_other_page(page) {
-        //
+        // Remove previously selected image, if any
+        const selectedImage = document.querySelector(".imgSelected");
+        if (selectedImage) {
+            selectedImage.classList.remove("imgSelected");
+        }
         // Create an image element for this page
         const image = document.createElement("img");
-        //
         // Add a class to the image
         image.classList.add("image");
-        //
         // Set the source of the image to the URL of the page
         image.src = `http://localhost${page.url}`;
-        //
         // Add event listener to change border color when clicked
         image.addEventListener("click", () => {
-            image.classList.toggle("imgSelected");
+            // Remove the "imgSelected" class from the previously selected image
+            const prevSelectedImage = document.querySelector(".imgSelected");
+            if (prevSelectedImage) {
+                prevSelectedImage.classList.remove("imgSelected");
+            }
+            // Add the "imgSelected" class to the clicked image
+            image.classList.add("imgSelected");
         });
-        //
-        // Attach the image element to the other-pages div element
+        // Replace the content of the other-pages div element with the new image
+        this.other_pages.innerHTML = "";
         this.other_pages.appendChild(image);
     }
     //
@@ -214,6 +241,7 @@ export class mashamba extends view.page {
             element.value = "";
         }
     }
+    //
     // Fill the transcriptions, by transferring the values from from the global
     // array, data array to
     // the transciption panel
@@ -235,25 +263,14 @@ export class mashamba extends view.page {
     }
     //
     //
-    async save() {
-        //
-        //save to dbase
-        const pk = await this.save_to_dbase();
-        //
-        //Get the transcriber
-        const User = this.get_user();
-        //
-        //Register the transcriber who did the saving
-        this.register_user(pk, User);
-    }
-    //
-    // Get the data from the input elements and send and save them to various
+    // Get the transcription data {including the current logged in intern) from
+    // the input form then save them to various
     // tables in the mutall_mashamba database
-    async save_to_dbase() {
+    async save() {
         //
         //Collect the data to save, as layouts
         //
-        //Get the ids of the html elements that hp;d the data
+        //Get the ids of the html elements that have the data
         const ids = {
             document: ["document", "id"],
             title_no: ["title", "id"],
@@ -261,26 +278,11 @@ export class mashamba extends view.page {
             area: ["document", "area"],
             owner: ["document", "person"],
             regno: ["document", "regno"],
+            surname: ["intern", "surname"],
         };
         //
         //The elements will now be mapped to their layouts
-        const layouts = Object.keys(ids).map((k) => {
-            //
-            //Coerce k into of of the document keys
-            const key = k;
-            //
-            //Get the values of the elements
-            const value = document.getElementById(key).value;
-            //
-            //Show the entity name where the data will be saved in the database
-            const ename = ids[key][0];
-            //
-            //Show which column in the database the value will be saved
-            const cname = ids[key][1];
-            //
-            //Get the values ready for saving
-            return [value, ename, cname];
-        });
+        const layouts = Object.keys(ids).map((k) => this.get_layout(k, ids));
         //
         //Use questionnaire to save the data and get the results
         const result = await server.exec(
@@ -301,7 +303,72 @@ export class mashamba extends view.page {
         alert(result);
     }
     //
-    // This is sign in or up for mashamba users 
-    sign() {
+    // k is the id used to label the input elements in the form
+    get_layout(k, ids) {
+        //
+        //Coerce k into of of the document keys
+        const key = k;
+        //
+        //Define a string value
+        let value;
+        //
+        //If the key is a surname use the reg system to get the intern logged in
+        if (key === "surname")
+            value = this.get_current_intern();
+        else
+            value = document.getElementById(key).value;
+        //
+        //Show the entity name where the data will be saved in the database
+        const ename = ids[key][0];
+        //
+        //Show which column in the database the value will be saved
+        const cname = ids[key][1];
+        //
+        //Get the values ready for saving
+        return [value, ename, cname];
+    }
+    //
+    // If there is no currently logged in user we kick in the Joshua's registration system.
+    // The underline Db must support one or 2 users types this content generator eg Divan
+    // and transcriber.
+    // The key is a surname use the reg system to get the intern logged in.
+    // String is the actual surname of the user logged in.
+    get_current_intern() {
+        //
+        // Let surname be the result we want.
+        let surname;
+        //
+        // Use windows local storage to get the currently logged in intern.
+        surname = localStorage.getItem("userfullname");
+        //
+        // If no user is logged in use the registration class to get the user
+        if (surname === null)
+            surname = this.get_user_from_registration_system();
+        //
+        // Take the fact that the user may not be active and the registartion system was aborted.
+        // chack how to stop a process without using a method.
+        if (surname === null)
+            throw new mutall_error("I am unable to determine the current user");
+        //
+        // Return the username.
+        return surname;
+    }
+    //
+    // Use the registration class to get the user.
+    get_user_from_registration_system() {
+        //
+        // Create registration instance
+        // the registation class will be in the registration.ts in the outlook
+        const popup = new registration();
+        //
+        // Administer the pop up to get the user
+        // User data type is found in the app.ts file of outlook
+        const user = await popup.administer();
+        //
+        // Return the user name
+        //
+        // If user is undefined return null
+        //
+        // otherwise return the name of the user
     }
 }

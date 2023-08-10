@@ -44,18 +44,43 @@ export class mashamba extends view.page {
     async show_panels() {
         //
         //Load documents
-        this.docs = await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba.sql", "file"]);
+        this.docs = (await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba.sql", "file"]));
         //
         //Load the current title
         this.load_title();
     }
+    //
     // this will help in moving to next document
     move_next() {
         //
-        // Increate the counter by 1
-        this.counter++;
-        // Load tthe titles using the new counter
-        this.load_title();
+        // Check if there are any empty required fields before moving to the next document
+        if (this.areRequiredFieldsEmpty()) {
+            alert("Please fill all required fields before moving to the next document.");
+            return;
+        }
+    }
+    //
+    // Checking if fields are empty
+    areRequiredFieldsEmpty() {
+        //
+        // Define an array of keys for the required fields
+        const requiredKeys = [
+            "document",
+            "title_no",
+            "category",
+            "area",
+            "owner",
+            "regno",
+        ];
+        //
+        // Loop through the required keys and check if any of the corresponding input fields are empty
+        for (const key of requiredKeys) {
+            const element = document.getElementById(key);
+            if (!element.value.trim()) {
+                return true;
+            }
+        }
+        return false;
     }
     //
     // this will help in moving to next document
@@ -104,21 +129,44 @@ export class mashamba extends view.page {
         // Create the first page image
         const image1 = document.createElement("img");
         //
+        // Add a class to the image
+        image1.classList.add("image");
+        //
         // Attach the image to page1
         this.first_page.appendChild(image1);
+        //
+        // Add event listener to change border color when clicked
+        image1.addEventListener("click", () => {
+            image1.classList.toggle("imgSelected");
+        });
         //
         // Set the url of the page
         image1.src = `http://localhost${url}`;
     }
     create_other_page(page) {
-        //
+        // Remove previously selected image, if any
+        const selectedImage = document.querySelector(".imgSelected");
+        if (selectedImage) {
+            selectedImage.classList.remove("imgSelected");
+        }
         // Create an image element for this page
         const image = document.createElement("img");
-        //
+        // Add a class to the image
+        image.classList.add("image");
         // Set the source of the image to the URL of the page
         image.src = `http://localhost${page.url}`;
-        //
-        // Attach the image element to the other-pages div element
+        // Add event listener to change border color when clicked
+        image.addEventListener("click", () => {
+            // Remove the "imgSelected" class from the previously selected image
+            const prevSelectedImage = document.querySelector(".imgSelected");
+            if (prevSelectedImage) {
+                prevSelectedImage.classList.remove("imgSelected");
+            }
+            // Add the "imgSelected" class to the clicked image
+            image.classList.add("imgSelected");
+        });
+        // Replace the content of the other-pages div element with the new image
+        this.other_pages.innerHTML = "";
         this.other_pages.appendChild(image);
     }
     //clear all the 3 panels
@@ -133,14 +181,14 @@ export class mashamba extends view.page {
         // Clear all the inputs of the transcription panel, by looping over all
         // the keys of a document, except the pages key
         /*
-          document:string,
-              pages:string,
-              title_no:string,
-              category:string,
-              area:number,
-              owner:string,
-              regno:string
-          */
+            document:string,
+                pages:string,
+                title_no:string,
+                category:string,
+                area:number,
+                owner:string,
+                regno:string
+            */
         for (const key of [
             "document",
             "title_no",
@@ -181,24 +229,24 @@ export class mashamba extends view.page {
             element.value = String(value);
     }
     //
-    // Get the data from the input elements and send and save them to various 
-    // tables in the mutall_mashamba database 
+    // Get the data from the input elements and send and save them to various
+    // tables in the mutall_mashamba database
     async save_data() {
         //
         //Collect the data to save, as layouts
         //
         //Get the ids of the html elements that hp;d the data
         const ids = {
-            document: ['document', 'id'],
-            title_no: ['title', 'id'],
-            category: ['category', 'name'],
-            area: ['document', 'area'],
-            owner: ['document', 'person'],
-            regno: ['document', 'regno']
+            document: ["document", "id"],
+            title_no: ["title", "id"],
+            category: ["category", "name"],
+            area: ["document", "area"],
+            owner: ["document", "person"],
+            regno: ["document", "regno"],
         };
         //
         //The elements will now be mapped to their layouts
-        const layouts = Object.keys(ids).map(k => {
+        const layouts = Object.keys(ids).map((k) => {
             //
             //Coerce k into of of the document keys
             const key = k;
@@ -206,7 +254,7 @@ export class mashamba extends view.page {
             //Get the values of the elements
             const value = document.getElementById(key).value;
             //
-            //Show the entity name where the data will be saved in the database 
+            //Show the entity name where the data will be saved in the database
             const ename = ids[key][0];
             //
             //Show which column in the database the value will be saved
@@ -223,10 +271,10 @@ export class mashamba extends view.page {
         "questionnaire", 
         //
         //The constructor parameter of questionnare is one: database name
-        ['mutall_mashamba'], 
+        ["mutall_mashamba"], 
         //
         //The name of the questionnare method to use is the common lodig system
-        'load_common', 
+        "load_common", 
         //
         //The mandory parameter of the load commom method is one: layput
         [layouts]);

@@ -110,8 +110,12 @@ export class mashamba extends view.page {
     // At this point I have the data i want to use.
 
     //
-    // 2. Use the data to determine whether the content is on the server
-    // If its not on the server then transfer it from your PC to server.
+    // 2. Use the data to determine whether the content is on the server If its not on the server 
+    // then transfer it from your PC to server.
+    // 2.1 You need to have set a connection to the server you are sending the content to.
+    // 2.2 Now get the selected content from your input element.
+    // 2.3 Then Post it to the server using the conection made earlier.
+    // 2.4 If posting was success alert the user "Files uploaded" if not give an error message.
     //
     // 3. Load the metadata to the appropriate database, this is unconditional.
   }

@@ -108,17 +108,15 @@ export class mashamba extends view.page {
     const data_to_use = data ?? this.get_data_from_user();
     //
     // At this point I have the data i want to use.
-
-    //
     // 2. Use the data to determine whether the content is on the server If its not on the server 
-    // then transfer it from your PC to server.
-    // 2.1 You need to have set a connection to the server you are sending the content to.
-    // 2.2 Now get the selected content from your input element.
-    // 2.3 Then Post it to the server using the conection made earlier.
-    // 2.4 If posting was success alert the user "Files uploaded" if not give an error message.
-    // found out I need to use express and multer in posting files
+    // then transfer it from your PC. i.e., if the content is not on the server then upload it.
+    if (!this.content_is_on_server(data_to_use)) this.load_content(data_to_use);
     //
     // 3. Load the metadata to the appropriate database, this is unconditional.
+    const result = this.load_metadata(data_to_use);
+    //
+    // Report the result
+    this.report(result);
   }
 
   //

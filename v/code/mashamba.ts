@@ -116,7 +116,7 @@ export class mashamba extends view.page {
     // 2.2 Now get the selected content from your input element.
     // 2.3 Then Post it to the server using the conection made earlier.
     // 2.4 If posting was success alert the user "Files uploaded" if not give an error message.
-    //
+    // 
     // 3. Load the metadata to the appropriate database, this is unconditional.
   }
 

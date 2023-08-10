@@ -59,7 +59,7 @@ fieldset:nth-of-type(2) {
 }
 
 fieldset:nth-of-type(3) {
-  flex-basis: 15%;
+  flex-basis: 10%;
 }
 
 fieldset:nth-of-type(4) {
@@ -67,6 +67,10 @@ fieldset:nth-of-type(4) {
 }
 
 fieldset:nth-of-type(5) {
+  flex-basis: 5%;
+}
+
+fieldset:nth-of-type(6) {
   flex-basis: 5%;
 }
 

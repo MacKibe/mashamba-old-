@@ -6,10 +6,16 @@ import * as server from "../../../schema/v/code/server.js";
 import * as quest from "../../../schema/v/code/questionnaire.js";
 //
 //Import the registration library.
-
+//Access the registration services from the registration class
+import { registration } from "./registration.js";
+//
+//Access the user class to use it as a data type for holding the
+//user credentials
+import { user } from "../../../outlook/v/code/app.js";
 //
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
+import { mutall_error } from "../../../schema/v/code/schema.js";
 //
 //Get the documents to drive our page. A document has the following structure:-
 type doc = {
@@ -26,7 +32,14 @@ type doc = {
 type page = { num: string; url: string; name: string };
 //
 //
-type keys = "document" | "title_no" | "category" | "area" | "owner" | "regno" | "surname";
+type keys =
+  | "document"
+  | "title_no"
+  | "category"
+  | "area"
+  | "owner"
+  | "regno"
+  | "surname";
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -37,7 +50,7 @@ export class mashamba extends view.page {
   public first_page: HTMLElement;
   //
   //This is the panel that represents the other pages of the document
-  public other_pages: HTMLElement; 
+  public other_pages: HTMLElement;
   //
   //The couner for documents being displayed
   public counter: number = 0;
@@ -63,8 +76,9 @@ export class mashamba extends view.page {
       this.move_previous();
     //
     // Attach an event listener for saving the transcriptions
-    document.getElementById("save_data_btn")!.onclick = () => this.save_to_dbase();
+    document.getElementById("save_data_btn")!.onclick = () => this.save();
   }
+
   //
   //Replace the show pannels method with our own version
   public async show_panels(): Promise<void> {
@@ -82,6 +96,26 @@ export class mashamba extends view.page {
     //Load the current title
     this.load_title();
   }
+
+  //
+  //Assuming
+  //First assume the images are on the server,
+  // next assume its on another computer.
+  // Data = content(files) + metadata(interfaces).
+  public async load_images(data?: Array<images>): Promise<unknown> {
+    //
+    // 1. If you dont have the data then collect it from the user.
+    const data_to_use = data ?? this.get_data_from_user();
+    //
+    // At this point I have the data i want to use.
+
+    //
+    // 2. Use the data to determine whether the content is on the server
+    // If its not on the server then transfer it from your PC to server.
+    //
+    // 3. Load the metadata to the appropriate database, this is unconditional.
+  }
+
   //
   // this will help in moving to next document
   move_next() {
@@ -101,9 +135,10 @@ export class mashamba extends view.page {
     // Load tthe titles using the new counter
     this.load_title();
   }
+
   //
   // Checking if fields are empty
-  areRequiredFieldsEmpty(): boolean {
+  public areRequiredFieldsEmpty(): boolean {
     //
     // Define an array of keys for the required fields
     const requiredKeys: keys[] = [
@@ -138,7 +173,7 @@ export class mashamba extends view.page {
   }
 
   //
-  // Load the current document tothehome page depending
+  // Load the current document to the home page depending
   async load_title() {
     //
     // Clear all the 3 panels, viz., first_page, other_pages and transcription
@@ -189,6 +224,7 @@ export class mashamba extends view.page {
     // Set the url of the page
     image1.src = `http://localhost${url}`;
   }
+
   //
   //
   create_other_page(page: page) {
@@ -210,6 +246,7 @@ export class mashamba extends view.page {
     // Attach the image element to the other-pages div element
     this.other_pages.appendChild(image);
   }
+
   //
   //clear all the 3 panels
   clear_panels() {
@@ -251,6 +288,7 @@ export class mashamba extends view.page {
     }
   }
 
+  //
   // Fill the transcriptions, by transferring the values from from the global
   // array, data array to
   // the transciption panel
@@ -268,16 +306,17 @@ export class mashamba extends view.page {
     //Set the element vale only if the value is not null
     if (value !== null) element.value = String(value);
   }
+
   //
   //
   // Get the transcription data {including the current logged in intern) from
   // the input form then save them to various
   // tables in the mutall_mashamba database
-  async save() {
+  public async save(): Promise<void> {
     //
     //Collect the data to save, as layouts
     //
-    //Get the ids of the html elements that hp;d the data
+    //Get the ids of the html elements that have the data
     const ids: { [key in keys]: [string, string] } = {
       document: ["document", "id"],
       title_no: ["title", "id"],
@@ -285,40 +324,20 @@ export class mashamba extends view.page {
       area: ["document", "area"],
       owner: ["document", "person"],
       regno: ["document", "regno"],
-      surname: ["intern","surname"],
+      surname: ["intern", "surname"],
     };
     //
     //The elements will now be mapped to their layouts
-    const layouts: Array<quest.layout> = Object.keys(ids).map((k) => {
-      //
-      //Coerce k into of of the document keys
-      const key = <keys>k;
-      //
-      //Define a string value
-      let value:string;
-      //
-      //If the key is a surname use the reg system to get the intern logged in
-      if (key === 'surname') value = this.get_current_intern(); 
-      else value = (<HTMLInputElement>document.getElementById(key)).value;
-      //
-      //Show the entity name where the data will be saved in the database
-      const ename: string = ids[key][0];
-      //
-      //Show which column in the database the value will be saved
-      const cname: string = ids[key][1];
-      //
-      //Get the values ready for saving
-      return [value, ename, cname];
-    });
+    const layouts: Array<quest.layout> = Object.keys(ids).map((k) =>
+      this.get_layout(k, ids)
+    );
     //
     //Use questionnaire to save the data and get the results
     const result: "Ok" | string = await server.exec(
       //
       //The name of the PHP class to use is questionnaire
       "questionnaire",
-   
-   
-          //
+      //
       //The constructor parameter of questionnare is one: database name
       ["mutall_mashamba"],
       //
@@ -332,12 +351,76 @@ export class mashamba extends view.page {
     //Report the result.
     alert(result);
   }
-  
-  // 
-  get_current_intern(){
+
+  //
+  // k is the id used to label the input elements in the form
+  get_layout(
+    k: string,
+    ids: { [key in keys]: [string, string] }
+  ): quest.layout {
     //
-    // Get the current logged in intern, if not logging in use the login system
-    // developed by Joshua.
-    
+    //Coerce k into of of the document keys
+    const key = <keys>k;
+    //
+    //Define a string value
+    let value: string;
+    //
+    //If the key is a surname use the reg system to get the intern logged in
+    if (key === "surname") value = this.get_current_intern();
+    else value = (<HTMLInputElement>document.getElementById(key)).value;
+    //
+    //Show the entity name where the data will be saved in the database
+    const ename: string = ids[key][0];
+    //
+    //Show which column in the database the value will be saved
+    const cname: string = ids[key][1];
+    //
+    //Get the values ready for saving
+    return [value, ename, cname];
+  }
+
+  //
+  // If there is no currently logged in user we kick in the Joshua's registration system.
+  // The underline Db must support one or 2 users types this content generator eg Divan
+  // and transcriber.
+  // The key is a surname use the reg system to get the intern logged in.
+  // String is the actual surname of the user logged in.
+  private get_current_intern(): string {
+    //
+    // Let surname be the result we want.
+    let surname: string | null;
+    //
+    // Use windows local storage to get the currently logged in intern.
+    surname = localStorage.getItem("userfullname");
+    //
+    // If no user is logged in use the registration class to get the user
+    if (surname === null) surname = this.get_user_from_registration_system();
+    //
+    // Take the fact that the user may not be active and the registartion system was aborted.
+    // chack how to stop a process without using a method.
+    if (surname === null)
+      throw new mutall_error("I am unable to determine the current user");
+    //
+    // Return the username.
+    return surname;
+  }
+
+  //
+  // Use the registration class to get the user.
+  private get_user_from_registration_system(): string | null {
+    //
+    // Create registration instance
+    // the registation class will be in the registration.ts in the outlook
+    const popup = new registration();
+    //
+    // Administer the pop up to get the user
+    // User data type is found in the app.ts file of outlook
+    const user: user | undefined = await popup.administer();
+    //
+    // Return the user name
+    //
+    // If user is undefined return null
+    //
+    // otherwise return the name of the user
   }
 }

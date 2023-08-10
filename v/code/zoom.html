@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      iframe {
+        width: 50%;
+        aspect-ratio: 2/1;
+      }
+      img {
+        width: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe src="./assets/images/img001.jpg" frameborder="1"></iframe>
+    <script>
+      // Zoom in the clicked image
+      zoomImage(image: HTMLImageElement) {
+          const originalWidth = image.clientWidth;
+          const originalHeight = image.clientHeight;
+          const zoomFactor = 1.2; // Increase size by 20%
+
+          image.onclick = () => {
+              // Check if the image is already zoomed
+              if (image.clientWidth > originalWidth || image.clientHeight > originalHeight) {
+                  // Restore the image to its original size
+                  image.style.width = `${originalWidth}px`;
+                  image.style.height = `${originalHeight}px`;
+              } else {
+                  // Zoom in the image
+                  const newWidth = originalWidth * zoomFactor;
+                  const newHeight = originalHeight * zoomFactor;
+                  image.style.width = `${newWidth}px`;
+                  image.style.height = `${newHeight}px`;
+              }
+          };
+      }
+    </script>
+  </body>
+</html>

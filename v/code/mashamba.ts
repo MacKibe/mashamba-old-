@@ -40,6 +40,20 @@ type keys =
   | "owner"
   | "regno"
   | "surname";
+
+// this is the data structure we are going to use to hold our images.
+interface Iimagery {
+  //
+  // The location i.e path/folder on our server where to save the data e.g. /imagery/v/images/
+  destination: string;
+  //
+  // The content we are about to upload if it comes from the client then the files will be
+  // defined, if it comes from the server then the folder will be defined.
+  content: FileList | string;
+  //
+  // The metadata to upload.
+  keyword: string;
+}
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -102,21 +116,42 @@ export class mashamba extends view.page {
   //First assume the images are on the server,
   // next assume its on another computer.
   // Data = content(files) + metadata(interfaces).
-  public async load_images(data?: Array<images>): Promise<unknown> {
+  public async load_images(data: Iimagery): Promise<unknown> {
     //
-    // 1. If you dont have the data then collect it from the user.
-    const data_to_use = data ?? this.get_data_from_user();
+    // 1. If you dont have the data then collect it from the user(JM).
+    // Promise/await.
+    const data_to_use: Iimagery = data ?? this.get_data_from_user();
     //
     // At this point I have the data i want to use.
+
     // 2. Use the data to determine whether the content is on the server If its not on the server
     // then transfer it from your PC. i.e., if the content is not on the server then upload it.
-    if (!this.content_is_on_server(data_to_use)) this.load_content(data_to_use);
+    // Use our server exec path command (SM)
+    if (typeof data_to_use === "string")
+      this.copy_from_content_to_destination(data_to_use);
     //
-    // 3. Load the metadata to the appropriate database, this is unconditional.
+    // Research on fetch post &global Php variables move_upload_files(JK)
+    else this.upload_content(data_to_use);
+    //
+    // 3. Load the metadata to the appropriate database, this is unconditional (GK).
     const result = this.load_metadata(data_to_use);
     //
-    // Report the result
+    // Report the result. Hint report on the same dialog box (KM/JM)
     this.report(result);
+  }
+  //
+  // Gets data from site using an input element.
+  public async get_data_from_user(): Promise<Iimagery> {
+    //
+    // 1. check if there any selected files
+  }
+  //
+  // loading content(files) to the server using the exec function in the library
+  public async load_content() {
+    //
+    // 1. Upload to the server with a specified path.
+    //
+    // 2. Report to user if files were sent successfully.
   }
 
   //
@@ -130,7 +165,6 @@ export class mashamba extends view.page {
       );
       return;
     }
-
     //
     // Increate the counter by 1
     this.counter++;

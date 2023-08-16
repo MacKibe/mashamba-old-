@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1.0, maximum-scale=1.0, user-scalable=1"
+    />
+    <title>Home</title>
+    <style>
+      *,
+      *:after,
+      *:before {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: arial;
+        font-size: 16px;
+        margin: 0;
+        background: #fff;
+        min-height: 100vh;
+        background: #020819;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      }
+
+      figure {
+        width: 800px;
+        height: 500px;
+        overflow: hidden;
+        border: 3px solid #fff;
+        position: relative;
+      }
+
+      figure img {
+        max-width: 100%;
+        z-index: 10;
+      }
+
+      .img_buttons {
+        position: absolute;
+        z-index: 999;
+      }
+
+      #zoom_in_btn {
+        top: 0;
+        left: 0;
+      }
+
+      #zoom_out_btn {
+        top: 0;
+        right: 0;
+      }
+
+      #left_pan {
+        left: 0;
+        top: 50%;
+      }
+
+      #right_pan {
+        top: 50%;
+        right: 0;
+      }
+
+      #up_pan {
+        left: 50%;
+        top: 0;
+      }
+
+      #down_pan {
+        left: 50%;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Figure is for specifying self contained content -->
+    <figure id="magnifying_area">
+      <img id="magnifying_img" src="./assets/images/img001.jpg" />
+      <button class="img_buttons" class="zoom_in_btn" id="zoom_in_btn">
+        ZoomIn
+      </button>
+      <button class="img_buttons" class="zoom_out_btn" id="zoom_out_btn">
+        ZoomOut
+      </button>
+      <button class="img_buttons" class="left_pan" id="left_pan">left</button>
+      <button class="img_buttons" class="right_pan" id="right_pan">
+        right
+      </button>
+      <button class="img_buttons" class="up_pan" id="up_pan">up</button>
+      <button class="img_buttons" class="down_pan" id="down_pan">down</button>
+    </figure>
+
+    <script>
+      // JavaScript
+      var magnifying_img = document.getElementById("magnifying_img");
+      var zoom_in_button = document.getElementById("zoom_in_btn");
+      var zoom_out_button = document.getElementById("zoom_out_btn");
+      var pan_image_left = document.getElementById("left_pan");
+      var pan_image_right = document.getElementById("right_pan");
+      var pan_image_down = document.getElementById("down_pan");
+      var pan_image_up = document.getElementById("up_pan");
+
+      var currentZoom = 1; // Initial zoom level
+      var panOffsetX = 0; // Initial X offset for panning
+      var panOffsetY = 0; // Initial Y offset for panning
+
+      zoom_in_button.addEventListener("click", function () {
+        currentZoom += 0.1; // Increment zoom level by 0.1 each time
+        magnifying_img.style.transform = "scale(" + currentZoom + ")";
+      });
+
+      zoom_out_button.addEventListener("click", function () {
+        currentZoom -= 0.1; // Increment zoom level by 0.1 each time
+        magnifying_img.style.transform = "scale(" + currentZoom + ")";
+      });
+
+      pan_image_left.addEventListener("click", function () {
+        panOffsetX -= 50; // Adjust the panning increment as needed
+        magnifying_img.style.transform =
+          "scale(" +
+          currentZoom +
+          ") translate(" +
+          panOffsetX +
+          "px, " +
+          panOffsetY +
+          "px)";
+      });
+
+      pan_image_right.addEventListener("click", function () {
+        panOffsetX += 50; // Adjust the panning increment as needed
+        magnifying_img.style.transform =
+          "scale(" +
+          currentZoom +
+          ") translate(" +
+          panOffsetX +
+          "px, " +
+          panOffsetY +
+          "px)";
+      });
+
+      pan_image_down.addEventListener("click", function () {
+        panOffsetY -= 50; // Adjust the panning increment as needed
+        magnifying_img.style.transform =
+          "scale(" +
+          currentZoom +
+          ") translate(" +
+          panOffsetX +
+          "px, " +
+          panOffsetY +
+          "px)";
+      });
+
+      pan_image_up.addEventListener("click", function () {
+        panOffsetY += 50; // Adjust the panning increment as needed
+        magnifying_img.style.transform =
+          "scale(" +
+          currentZoom +
+          ") translate(" +
+          panOffsetX +
+          "px, " +
+          panOffsetY +
+          "px)";
+      });
+    </script>
+  </body>
+</html>

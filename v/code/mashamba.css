@@ -1,5 +1,6 @@
 * {
-  /* border box will help in making all the elements stay in the parent element without overflowing */
+  /* border box will help in making all the elements stay in the parent element without 
+  overflowing when adding margins and paadings */
   box-sizing: border-box;
   /* resetting the page margin and padding 0 */
   margin: 0;
@@ -20,6 +21,8 @@ body {
 
 .first_page {
   display: grid;
+  position: relative;
+  overflow: hidden;
   grid-area: main;
   background-color: rgba(176, 176, 176, 0.763);
   border: 1px solid #000;
@@ -31,12 +34,16 @@ body {
   margin: auto;
 }
 
+.img_buttons {
+  position: absolute;
+  z-index: 999;
+}
+
 header {
   display: flex;
   grid-area: header;
-  justify-content: space-between;
+  justify-content: space-around;
   max-height: 100%;
-  padding: 1% 0.5%;
   background-color: #e6e1c5;
 }
 
@@ -47,24 +54,9 @@ fieldset legend {
 fieldset {
   display: flex;
   justify-content: space-around;
-  border: 0;
-}
-
-fieldset:nth-of-type(1) {
-  flex-basis: 30%;
-}
-
-fieldset:nth-of-type(2) {
-  flex-basis: 30%;
-}
-
-fieldset button {
-  width: 50%;
-  max-height: 80%;
-}
-
-button img {
-  max-width: 20%;
+  background-color: #bcd3f2;
+  padding: .2%;
+  align-self: center;
 }
 
 .transcribe {

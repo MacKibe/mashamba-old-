@@ -63,6 +63,7 @@ export class mashamba extends view.page {
     // Attach an event listener for saving the transcriptions
     document.getElementById("save_data_btn")!.onclick = () => this.save_data();
   }
+  //
   //Replace the show pannels method with our own version
   public async show_panels(): Promise<void> {
     //
@@ -79,7 +80,6 @@ export class mashamba extends view.page {
     //Load the current title
     this.load_title();
   }
-
   //
   // this will help in moving to next document
   move_next() {
@@ -116,7 +116,6 @@ export class mashamba extends view.page {
 
     return false;
   }
-
   //
   // this will help in moving to next document
   move_previous() {
@@ -127,7 +126,6 @@ export class mashamba extends view.page {
     // Load tthe titles using the new counter
     this.load_title();
   }
-
   //
   // Load the current document tothehome page depending
   async load_title() {
@@ -155,7 +153,6 @@ export class mashamba extends view.page {
     // Create and show the other_pages panel
     for (let i = 1; i < pages.length; i++) this.create_other_page(pages[i]);
   }
-
   //
   // Set the url of the first image of the pages
   create_first_page(page: page) {
@@ -180,7 +177,8 @@ export class mashamba extends view.page {
     // Set the url of the page
     image1.src = `http://localhost${url}`;
   }
-
+  //
+  // Add the rest of the images in the other_page section
   create_other_page(page: page) {
     // Remove previously selected image, if any
     const selectedImage = document.querySelector(".imgSelected");
@@ -212,9 +210,8 @@ export class mashamba extends view.page {
     // Replace the content of the other-pages div element with the new image
     this.other_pages.innerHTML = "";
     this.other_pages.appendChild(image);
-}
-
-
+  }
+  //
   //clear all the 3 panels
   clear_panels() {
     //
@@ -254,7 +251,6 @@ export class mashamba extends view.page {
       element.value = "";
     }
   }
-
   // Fill the transcriptions, by transferring the values from from the global
   // array, data array to
   // the transciption panel
@@ -272,7 +268,6 @@ export class mashamba extends view.page {
     //Set the element vale only if the value is not null
     if (value !== null) element.value = String(value);
   }
-
   //
   // Get the data from the input elements and send and save them to various
   // tables in the mutall_mashamba database

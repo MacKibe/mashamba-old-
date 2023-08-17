@@ -40,11 +40,22 @@ export class mashamba extends view.page {
         // Attach an event listener for saving the transcriptions
         document.getElementById("save_data_btn").onclick = () => this.save_data();
     }
+    //
+    //Replace the show pannels method with our own version
+    async show_empty_panels() {
+        //
+        //Load documents
+        this.docs = (await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba_transcription.sql", "file"]));
+        //
+        //Load the current title
+        this.load_title();
+    }
+    //
     //Replace the show pannels method with our own version
     async show_panels() {
         //
         //Load documents
-        this.docs = (await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba.sql", "file"]));
+        this.docs = (await server.exec("database", ["mutall_mashamba", false], "get_sql_data", ["/mashamba/v/code/mashamba_transcription.sql", "file"]));
         //
         //Load the current title
         this.load_title();
@@ -58,9 +69,14 @@ export class mashamba extends view.page {
             alert("Please fill all required fields before moving to the next document.");
             return;
         }
+        //
+        // Increate the counter by 1
+        this.counter++;
+        // Load tthe titles using the new counter
+        this.load_title();
     }
     //
-    // Checking if fields are empty
+    //Checking if fields are empty
     areRequiredFieldsEmpty() {
         //
         // Define an array of keys for the required fields
@@ -143,6 +159,8 @@ export class mashamba extends view.page {
         // Set the url of the page
         image1.src = `http://localhost${url}`;
     }
+    //
+    // Add the rest of the images in the other_page section
     create_other_page(page) {
         // Remove previously selected image, if any
         const selectedImage = document.querySelector(".imgSelected");
@@ -169,6 +187,7 @@ export class mashamba extends view.page {
         this.other_pages.innerHTML = "";
         this.other_pages.appendChild(image);
     }
+    //
     //clear all the 3 panels
     clear_panels() {
         //

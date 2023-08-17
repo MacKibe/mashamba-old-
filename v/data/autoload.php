@@ -85,7 +85,7 @@ class scanner extends table{
 }
 
 $layouts = [
-    new scanner('files', '/mutall_mashamba/v/images'),
+    new scanner('files', '/mashamba/v/images'),
     [new lookup('files', 'document_id'), 'document', 'id'],
     [new lookup('files', 'folder_name'), 'folder', 'name'],
     [new lookup('files', 'image_name'), 'image', 'name'],

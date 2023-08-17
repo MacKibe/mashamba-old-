@@ -65,6 +65,23 @@ export class mashamba extends view.page {
   }
   //
   //Replace the show pannels method with our own version
+  public async show_empty_panels(): Promise<void> {
+    //
+    //Load documents
+    this.docs = <Array<doc>>(
+      await server.exec(
+        "database",
+        ["mutall_mashamba", false],
+        "get_sql_data",
+        ["/mashamba/v/code/mashamba_transcription.sql", "file"]
+      )
+    );
+    //
+    //Load the current title
+    this.load_title();
+  }
+  //
+  //Replace the show pannels method with our own version
   public async show_panels(): Promise<void> {
     //
     //Load documents
@@ -91,9 +108,16 @@ export class mashamba extends view.page {
       );
       return;
     }
+    
+    //
+    // Increate the counter by 1
+    this.counter++;
+
+    // Load tthe titles using the new counter
+    this.load_title();
   }
   //
-  // Checking if fields are empty
+  //Checking if fields are empty
   public areRequiredFieldsEmpty(): boolean {
     //
     // Define an array of keys for the required fields

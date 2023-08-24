@@ -116,7 +116,7 @@ export class mashamba extends view.page {
   //First assume the images are on the server,
   // next assume its on another computer.
   // Data = content(files) + metadata(interfaces).
-  public async load_images(data: Iimagery): Promise<unknown> {
+  public async load_images(data?: Iimagery): Promise<unknown> {
     //
     // 1. If you dont have the data then collect it from the user(JM).
     // Promise/await.
@@ -126,7 +126,7 @@ export class mashamba extends view.page {
 
     // 2. Use the data to determine whether the content is on the server If its not on the server
     // then transfer it from your PC. i.e., if the content is not on the server then upload it.
-    // Use our server exec path command (SM)
+    // Use our server exec path command (SW)
     if (typeof data_to_use === "string")
       this.copy_from_content_to_destination(data_to_use);
     //
@@ -140,20 +140,25 @@ export class mashamba extends view.page {
     this.report(result);
   }
   //
-  // Gets data from site using an input element.
-  public async get_data_from_user(): Promise<Iimagery> {
+  // This will help in automating the loading of images from my local storage. 
+  // i.e. my pc to the server
+  // hint: I'll be using the Fetch command to send a request from my client to the server.
+  public async upload_content(data_to_use: Iimagery) :Promise<void>{
     //
-    // 1. check if there any selected files
+    // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
+    const convert_Iimagery_to_request =   
+    // 
+    // 2. Send the request to the server and get a response.
+    
+    // 
+    // 3. Check whether the response was successful if not report to the user.
+    
+    // 
+    // 4. Extract the response request test whether the php execution was successful.
+    
+    // 
+    // 5. If not successful stop the process and report to the user.
   }
-  //
-  // loading content(files) to the server using the exec function in the library
-  public async load_content() {
-    //
-    // 1. Upload to the server with a specified path.
-    //
-    // 2. Report to user if files were sent successfully.
-  }
-
   //
   // this will help in moving to next document
   move_next() {

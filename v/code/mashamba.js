@@ -63,15 +63,30 @@ export class mashamba extends view.page {
     // Data = content(files) + metadata(interfaces).
     async load_images(data) {
         //
-        // 1. If you dont have the data then collect it from the user.
+        // 1. If you dont have the data then collect it from the user(JM).
+        // Promise/await.
         const data_to_use = data ?? this.get_data_from_user();
         //
         // At this point I have the data i want to use.
+        // 2. Use the data to determine whether the content is on the server If its not on the server
+        // then transfer it from your PC. i.e., if the content is not on the server then upload it.
+        // Use our server exec path command (SM)
+        if (typeof data_to_use === "string")
+            this.copy_from_content_to_destination(data_to_use);
         //
-        // 2. Use the data to determine whether the content is on the server
-        // If its not on the server then transfer it from your PC to server.
+        // Research on fetch post &global Php variables move_upload_files(JK)
+        else
+            this.upload_content(data_to_use);
         //
-        // 3. Load the metadata to the appropriate database, this is unconditional.
+        // 3. Load the metadata to the appropriate database, this is unconditional (GK).
+        const result = this.load_metadata(data_to_use);
+        //
+        // Report the result. Hint report on the same dialog box (KM/JM)
+        this.report(result);
+    }
+    //
+    // loading content(files) to the server using the exec function in the library
+    async upload_content() {
     }
     //
     // this will help in moving to next document
@@ -175,29 +190,22 @@ export class mashamba extends view.page {
     //
     //
     create_other_page(page) {
-        // Remove previously selected image, if any
-        const selectedImage = document.querySelector(".imgSelected");
-        if (selectedImage) {
-            selectedImage.classList.remove("imgSelected");
-        }
+        //
         // Create an image element for this page
         const image = document.createElement("img");
+        //
         // Add a class to the image
         image.classList.add("image");
+        //
         // Set the source of the image to the URL of the page
         image.src = `http://localhost${page.url}`;
+        //
         // Add event listener to change border color when clicked
         image.addEventListener("click", () => {
-            // Remove the "imgSelected" class from the previously selected image
-            const prevSelectedImage = document.querySelector(".imgSelected");
-            if (prevSelectedImage) {
-                prevSelectedImage.classList.remove("imgSelected");
-            }
-            // Add the "imgSelected" class to the clicked image
-            image.classList.add("imgSelected");
+            image.classList.toggle("imgSelected");
         });
-        // Replace the content of the other-pages div element with the new image
-        this.other_pages.innerHTML = "";
+        //
+        // Attach the image element to the other-pages div element
         this.other_pages.appendChild(image);
     }
     //

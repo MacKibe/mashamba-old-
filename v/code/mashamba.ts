@@ -139,6 +139,44 @@ export class mashamba extends view.page {
     // Report the result. Hint report on the same dialog box (KM/JM)
     this.report(result);
   }
+  private async copy_from_content_to_destination(data_to_use:Iimagery):Promise<void>{
+    //
+    // 1. Get the source of the content to be copied from 
+    // 
+    // 1.1 Get the path from the user 
+    const path: string|null = prompt("Enter the source of the content:");
+    //
+    // 1.2 Combine it with the content to get full path of source
+    const source:string = `${path}\${data_to_use}`;
+    //
+    // 1.3 Check if it content exists in source
+    const exists_source: boolean = await server.exec(
+        "path", 
+        ["/", false], 
+        "exists", 
+        [source]);
+    //
+    //1.4 If it does not exist alert the user                                          
+    if (!exists_source) alert("Content does exist.Please upload in the source")    
+    //
+    // 2. If it doe not exist,get the target destination to copy the contents
+    const target: string = `/tracker/path_to_where_to_be_copied/${data_to_use}`;
+    // 3.Check if the contents already exists in the folder to copy
+    const exists: boolean = await server.exec(
+        "path", 
+        ["/", false], 
+        "exists", 
+        [target]);
+    //
+    // 4.If it does not exist copy it
+    if (!exists)
+        await server.exec(
+          "path", 
+          [source, true], 
+          "copy", 
+          [target] 
+        );
+  }
   //
   // This will help in automating the loading of images from my local storage. 
   // i.e. my pc to the server

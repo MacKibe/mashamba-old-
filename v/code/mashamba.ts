@@ -146,7 +146,7 @@ export class mashamba extends view.page {
   public async upload_content(data_to_use: Iimagery) :Promise<void>{
     //
     // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
-    const convert_Iimagery_to_request =   
+    const con = this.convert_Iimagery_to_request();   
     // 
     // 2. Send the request to the server and get a response.
     

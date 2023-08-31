@@ -16,6 +16,7 @@ import { user } from "../../../outlook/v/code/app.js";
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
 import { mutall_error } from "../../../schema/v/code/schema.js";
+import { report } from "../../../outlook/v/code/outlook.js";
 //
 //Get the documents to drive our page. A document has the following structure:-
 type doc = {
@@ -112,9 +113,10 @@ export class mashamba extends view.page {
   }
 
   //
-  //Assuming
-  //First assume the images are on the server,
+  // First we will be assuming the images are on the server,
   // next assume its on another computer.
+  // Process we will be get the images from the selected images from the
+  // input element on the site. Then the user to click on the upload button.
   // Data = content(files) + metadata(interfaces).
   public async load_images(data?: Iimagery): Promise<unknown> {
     //
@@ -139,26 +141,28 @@ export class mashamba extends view.page {
     // Report the result. Hint report on the same dialog box (KM/JM)
     this.report(result);
   }
+
   //
-  // This will help in automating the loading of images from my local storage. 
+  // This will help in automating the loading of images from my local storage.
   // i.e. my pc to the server
   // hint: I'll be using the Fetch command to send a request from my client to the server.
-  public async upload_content(data_to_use: Iimagery) :Promise<void>{
+  public async upload_content(data_to_use: Iimagery): Promise<void> {
     //
     // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
-    const con = this.convert_Iimagery_to_request();   
-    // 
+    const con = this.convert_Iimagery_to_request();
+    //
     // 2. Send the request to the server and get a response.
-    
-    // 
+    const r: Response = fetch("upload.php", RequestInit);
+    //
     // 3. Check whether the response was successful if not report to the user.
-    
-    // 
+    const result: string = r.text();
+    //
     // 4. Extract the response request test whether the php execution was successful.
-    
-    // 
+    if (result !== "ok") throw new Error("");
+    //
     // 5. If not successful stop the process and report to the user.
   }
+
   //
   // this will help in moving to next document
   move_next() {

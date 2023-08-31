@@ -1,7 +1,7 @@
 <?php
 // 
 // Provide the destination to where my files will be uploaded.
-$targetDirectory = "./uploaded_images/";
+$targetDirectory = "./uploads/";
 $targetFile = $targetDirectory . basename($_FILES["input_file"]["name"]);
 
 // 

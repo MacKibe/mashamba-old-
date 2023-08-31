@@ -78,22 +78,7 @@ export class mashamba extends view.page {
     // Attach an event listener for zooming out the image.
     document.getElementById("zoom_out_btn")!.onclick = () => this.zoom_out();
   }
-
-  //
-  // zooming in the first image
-  zoom_in() {
-    const first_page_image = document.getElementById("first_page_image"); // Replace "myImage" with the actual ID
-    currentZoom += 0.1; // Increment zoom level by 0.1 each time
-    first_page_image.style.transform = "scale(" + currentZoom + ")";
-  }
-
-  //
-  // zooming out the first image
-  zoom_out() {
-    currentZoom -= 0.1; // Increment zoom level by 0.1 each time
-    first_page_image.style.transform = "scale(" + currentZoom + ")";
-  }
-
+  
   //
   //Replace the show pannels method with our own version
   public async show_panels(): Promise<void> {
@@ -134,7 +119,7 @@ export class mashamba extends view.page {
   }
 
   //
-  // Load the current document tothehome page depending
+  // Load the current document to the home page depending
   async load_title() {
     //
     // Clear all the 3 panels, viz., first_page, other_pages and transcription

@@ -58,14 +58,15 @@ export class mashamba extends view.page {
     //
     // zooming in the first image
     zoom_in() {
+        const first_page_image = document.getElementById("first_page_image"); // Replace "myImage" with the actual ID
         currentZoom += 0.1; // Increment zoom level by 0.1 each time
-        magnifying_img.style.transform = "scale(" + currentZoom + ")";
+        first_page_image.style.transform = "scale(" + currentZoom + ")";
     }
     //
     // zooming out the first image
     zoom_out() {
         currentZoom -= 0.1; // Increment zoom level by 0.1 each time
-        magnifying_img.style.transform = "scale(" + currentZoom + ")";
+        first_page_image.style.transform = "scale(" + currentZoom + ")";
     }
     //
     //Replace the show pannels method with our own version
@@ -133,7 +134,7 @@ export class mashamba extends view.page {
         const image1 = document.createElement("img");
         //
         // Add a class to the image
-        image1.classList.add("image");
+        image1.id = "first_page_image";
         //
         // Attach the image to page1
         this.first_page.appendChild(image1);

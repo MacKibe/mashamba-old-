@@ -8,7 +8,7 @@
 
 body {
   display: grid;
-  background-color: #bcd3f2;
+  /*background-color: #bcd3f2;*/
   min-height: 100dvh;
   grid-template-columns: 35% 65%;
   grid-template-rows: 10% 40% 50%;
@@ -21,7 +21,7 @@ body {
 .first_page {
   display: grid;
   grid-area: main;
-  background-color: rgba(176, 176, 176, 0.763);
+  /*background-color: rgba(176, 176, 176, 0.763);*/
   border: 1px solid #000;
   width: 100%;
 }

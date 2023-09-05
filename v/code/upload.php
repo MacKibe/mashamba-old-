@@ -12,4 +12,3 @@ if (move_uploaded_file($_FILES["input_file"]["tmp_name"], $targetFile)) {
 } else {
     echo "Sorry, there was an error uploading your file.";
 }
-?>

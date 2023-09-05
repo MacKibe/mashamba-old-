@@ -14,7 +14,7 @@ import { registration } from "./registration.js";
 import { user } from "../../../outlook/v/code/app.js";
 //
 //Access to Page class of our library
-import * as view from "../../../outlook/v/code/view.js";
+import * as view fruom "../../../outlook/v/code/view.js";
 import { mutall_error } from "../../../schema/v/code/schema.js";
 import { report } from "../../../outlook/v/code/outlook.js";
 //
@@ -149,20 +149,27 @@ export class mashamba extends view.page {
   public async upload_content(data_to_use: Iimagery): Promise<void> {
     //
     // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
-    const con = this.convert_Iimagery_to_request();
+    const conn = this.convert_Iimagery_to_request(data_to_use);
     //
     // 2. Send the request to the server and get a response.
-    const r: Response = fetch("upload.php", RequestInit);
+    const response = await fetch("upload.php", conn);
     //
     // 3. Check whether the response was successful if not report to the user.
-    const result: string = r.text();
+    const result = await response.text();
     //
     // 4. Extract the response request test whether the php execution was successful.
-    if (result !== "ok") throw new Error("");
+    if (result !== "ok") {
     //
     // 5. If not successful stop the process and report to the user.
+      throw new Error("Failed to upload file");
+    }
   }
 
+  //
+  //
+  public convert_Iimagery_to_request(){
+    
+  }
   //
   // this will help in moving to next document
   move_next() {

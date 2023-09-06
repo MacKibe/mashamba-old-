@@ -41,24 +41,42 @@ type keys =
     | "regno"
     | "surname";
 
-// this is the data structure we are going to use to hold our images.
-interface Iimagery {
+//Souce of content
+type source =
+    {
+        type: "local";
+        files: FileList; //Using a file selector
+    }
+    | {
+        type: "remote";
+        path: string; //Name of folder or file on the server
+    };
+
+type Iimagery = {
     //
-    // The location i.e path/folder on our server where to save the data e.g. /imagery/v/images/
-    destination: string;
+    //Source of content either local or remote
+    source: source;
     //
-    // The content we are about to upload if it comes from the client then the files will be
-    // defined, if it comes from the server then the folder will be defined.
-    content: FileList | string;
+    //Metadata - Descriptions of the content that should be saved to the database
     //
-    // The metadata to upload.
-    keyword: string;
+    //Where to save the content on your server
+    destination: string; //Path the server 
     //
-    //The intern that uploaded the image
-    intern: number;
-}
+    //The keywords to attach to every image
+    keywords: string;
+    //
+    //The primary key of the image contributor(Intern)
+    contributor: number; 
+    //
+    //The database name where to sae the metadata
+    dbname: string; 
+    //
+    //What to do if the content already exist on the server
+    action: "overwrite" | "report" | "skip";
+};
 //
 //Data structure to help us handle raw input before validation checks
+//?????????
 type raw<data extends {[key in keyof data]: data[key]}> = {
     [key in keyof data]: data[key] | Error | null;
 };
@@ -126,36 +144,61 @@ export class mashamba extends view.page {
     }
 
     //
-    //Assuming
-    //First assume the images are on the server,
-    // next assume its on another computer.
-    // Data = content(files) + metadata(interfaces).
-    public async load_images(data?: Iimagery): Promise<void> {
+    //Load upload files to a server and save the metadat to a database
+    //Use the Promise approach
+    public async load_images(
         //
-        // 1. If you don't have the data then collect it from the user(JM).
-        // Promise/await.
-        const data_to_use: Iimagery | "cancel" =
-            data ?? (await this.get_data_from_user());
+        //Where to hook the input dialog
+        anchor: HTMLElement,
         //
-        //Check on the status of the data collection operation. Stop the process if the user aborted
-        if (data_to_use === "cancel") return;
+        //??
+        data_in?: Iimagery
+    ): Promise<void> {
         //
-        // At this point I have the data i want to use.
-
-        // 2. Use the data to determine whether the content is on the server If its not on the server
-        // then transfer it from your PC. i.e., if the content is not on the server then upload it.
-        // Use our server exec path command (SM)
-        if (typeof data_to_use === "string")
-            this.copy_from_content_to_destination(data_to_use);
+        //Open, i.e., create and show, the dialog for capturing the user input(JM)
+        const {dlg, save, cancel} = this.open_dialog(
+            anchor,//Where to hook the dialog box
+            "./upload.html",//The HTML fragment
+            data_in// The data input in case of modification of existing data
+        );
         //
-        // Research on fetch post &global Php variables move_upload_files(JK)
-        else this.upload_content(data_to_use);
+        //Wait for the user to click either save or cancel button and when they 
+        //do return the imagery or undefined
+        const result: Iimagery | undefined = await new Promise((resolve) => this.upload_images(resolve, save, cancel));
         //
-        // 3. Load the metadata to the appropriate database, this is unconditional (GK).
-        const result = this.load_metadata(data_to_use);
+        //Close the dialog
+        anchor.removeChild(dlg);
         //
-        // Report the result. Hint report on the same dialog box (KM/JM)
-        this.report(result);
+        //Update the home page (i.e., show the fist image loaded, ready for 
+        //transcripion) if the loading was successful(JK)
+        if (result !== undefined)this.update_home_page();
+    }
+    //
+    //
+    private upload_images(
+        resolve: (result: Iimagery | undefined) => void,
+        save: HTMLButtonElement,
+        cancel: HTMLButtonElement
+        ): void{
+        //
+        //Attach a click event listener to the save button
+        save.onclick = async () => {
+            //
+            //Retrieve the infomation that was enterd by the user(JM)
+            const data_out: Iimagery = await this.get_data();
+            //
+            //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
+            const result: "ok" | Error = await this.save_images(data_out);
+            //
+            //Report if the operation was sucesful and resolve 
+            //the promised Iimagery on success(KM)
+            if (result === "ok") resolve(data_out);
+            else this.report_error("report", result.message);
+        };
+        //
+        //Attach a click event listener to the cancel.
+        //Resolve whenever the user aborts the process
+        cancel.onclick = () => resolve(undefined);
     }
     //
     //Gets data from the user
@@ -171,10 +214,6 @@ export class mashamba extends view.page {
         //
         //Wait for the user to input the data
         const data: Iimagery | "cancel" = await new Promise((resolve) => {
-            //
-            //Prepare to receive input by clearing the input elements
-            //
-            //Show the data collection form
             //
             //In the case that the user selected the upload start collecting the input
             this.get_element("upload").onclick = () => this.get_data(resolve);
@@ -199,7 +238,7 @@ export class mashamba extends view.page {
             destination: this.get_value("destination"),
             content: this.get_value("content"),
             keyword: this.get_value("keyword"),
-            intern: await this.get_intern_pk(),
+            intern: await this.get_intern_pk(), // The intern that did the uploading of the images ???????
         };
         //
         //Run the checks on the data gotten and if there is any error report and stop the process
@@ -249,9 +288,9 @@ export class mashamba extends view.page {
             keyof raw<Iimagery>
         >;
         //
-        //1.2 Filter out the erroneous and null values
+        //1.2 Filter out the erroneous values
         const err_keys: Array<keyof raw<Iimagery>> = keys.filter(
-            (key) => data[key] === null && data[key] instanceof Error
+            (key) => data[key] instanceof Error
         );
         //
         //Report all of the instances of errors or nulls to the user
@@ -415,14 +454,14 @@ export class mashamba extends view.page {
         // Clear all the inputs of the transcription panel, by looping over all
         // the keys of a document, except the pages key
         /*
-                document:string,
-                    pages:string,
-                    title_no:string,
-                    category:string,
-                    area:number,
-                    owner:string,
-                    regno:string
-                */
+                    document:string,
+                        pages:string,
+                        title_no:string,
+                        category:string,
+                        area:number,
+                        owner:string,
+                        regno:string
+                    */
         for (const key of [
             "document",
             "title_no",

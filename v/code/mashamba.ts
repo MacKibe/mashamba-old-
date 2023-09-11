@@ -149,13 +149,13 @@ export class mashamba extends view.page {
   public async upload_content(data_to_use: Iimagery): Promise<void> {
     //
     // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
-    const request:? = this.convert_Iimagery_to_request(data_to_use);
+    const request: Request = this.convert_Iimagery_to_request(data_to_use);
     //
     // 2. Send the request to the server and get a response.
-    const response:? = await fetch("upload.php", request);
+    const response: Response = await fetch("upload.php", request);
     //
     // 3. Check whether the response was successful if not report to the user.
-    const result:? = await response.text();
+    const result: string = await response.text();
     //
     // 4. Extract the response request test whether the php execution was successful.
     //If not successful stop the process and report to the user.
@@ -163,7 +163,7 @@ export class mashamba extends view.page {
   }
 
   //
-  //
+  // 
   public convert_Iimagery_to_request(){
     
   }

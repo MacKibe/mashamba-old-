@@ -2,33 +2,29 @@
 <html>
 <head>
     <title>File Upload</title>
+    <script type="module">
+      //
+      // Import the class that carries our code, from mashamba.js file
+      import { mashamba } from "./upload.js";
+      //
+      //After the page loads to the following...
+      window.onload = async () => {
+        //
+        //Create the mashamba page
+        const Page = new mashamba();
+        //
+        //Expose the page var outside
+        window.Page = Page;
+        //
+        //Show the mashamba system,
+        await Page.show_panels;
+      };
+    </script>
 </head>
 <body>
   <form id="my_form" class="form" enctype="multipart/form-data">
     <input type="file" name="input_files" id="input_file" multiple></input>
     <button type="submit">Upload file</button>
   </form>
-
-    <script>
-      /* Sending a file appended to a FormData object */
-      // Global var file for receiving the file $_FILES, $_MOVE_UPLOADED_FILE, $_POST , $_GET
-
-      const my_form = document.getElementById('my_form');
-      const input_file = document.getElementById('input_file'); 
-
-      my_form.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const endpoint = 'upload.php';
-        const formData = new FormData();
-
-        formData.append("input_file", input_file.files[0]);
-
-        fetch(endpoint, {
-          method: "post",
-          body: formData
-        }).catch(console.error)
-      })
-    </script>
 </body>
 </html>

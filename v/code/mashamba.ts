@@ -146,27 +146,46 @@ export class mashamba extends view.page {
   // This will help in automating the loading of images from my local storage.
   // i.e. my pc to the server
   // hint: I'll be using the Fetch command to send a request from my client to the server.
-  public async upload_content(data_to_use: Iimagery): Promise<void> {
+  public async upload_content(input: Iimagery): Promise< 'ok' | Error> {
     //
-    // 1. Convert the Iimagery user input to a fetch request that is fit for sending files.
-    const request: Request = this.convert_Iimagery_to_request(data_to_use);
+    //Form data is is of type body init
+    const form = new FormData();
     //
-    // 2. Send the request to the server and get a response.
-    const response: Response = await fetch("upload.php", request);
+    //Destructure the input to reveal ots keys
+    const {destination, content, keyword} = input;
     //
-    // 3. Check whether the response was successful if not report to the user.
-    const result: string = await response.text();
+    //We expect content to a filelist; if not, then there is an issue
+    if (!(content instanceof FileList)) throw new mutall_error('Content is expected to be a file list');
     //
-    // 4. Extract the response request test whether the php execution was successful.
-    //If not successful stop the process and report to the user.
-    if (result !== "ok") throw new Error("Failed to upload file");
+    // Add the files for sending to the server
+    for(let i=0; i<content.length; i++) form.append("input_file[]", content[i]);
+    //
+    //Add destination and keywords for sendig to the server
+    form.append('destination', destination);
+    form.append('keyword', keyword)
+    //
+    //These are the fetch options
+    const options:RequestInit = {
+        //
+        //This corresponds to the method attribute of a form
+        method:'post',
+        body:form
+    };
+    //
+    //Use the fetch method method to content to the server
+    //The action (attribute) of a form matches the resource parameter of the fetch command
+    const response:Response = await fetch("./upload.php", options);
+    //
+    //Test if fetch was succesful if not alert the user with an error
+    if (!response.ok) throw 'Fetch request failed...for some reason.';
+    //
+    //Get the text that was echoed by the php file
+    const result:string = await response.text();
+    //
+    //Alert the result
+    if (result === 'ok') return 'ok'; else return new Error(result);
   }
-
-  //
-  // 
-  public convert_Iimagery_to_request(){
-    
-  }
+  
   //
   // this will help in moving to next document
   move_next() {

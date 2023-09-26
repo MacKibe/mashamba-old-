@@ -7,7 +7,8 @@ import * as server from "../../../schema/v/code/server.js";
 import { registration } from "./registration.js";
 //
 //Access to Page class of our library
-import * as view from "../../../outlook/v/code/view.js";
+import * as view from fruom;
+"../../../outlook/v/code/view.js";
 import { mutall_error } from "../../../schema/v/code/schema.js";
 //
 //Extend the page class with our own version, called mashamba
@@ -57,9 +58,10 @@ export class mashamba extends view.page {
         this.load_title();
     }
     //
-    //Assuming
-    //First assume the images are on the server,
+    // First we will be assuming the images are on the server,
     // next assume its on another computer.
+    // Process we will be get the images from the selected images from the
+    // input element on the site. Then the user to click on the upload button.
     // Data = content(files) + metadata(interfaces).
     async load_images(data) {
         //
@@ -70,7 +72,7 @@ export class mashamba extends view.page {
         // At this point I have the data i want to use.
         // 2. Use the data to determine whether the content is on the server If its not on the server
         // then transfer it from your PC. i.e., if the content is not on the server then upload it.
-        // Use our server exec path command (SM)
+        // Use our server exec path command (SW)
         if (typeof data_to_use === "string")
             this.copy_from_content_to_destination(data_to_use);
         //
@@ -85,8 +87,53 @@ export class mashamba extends view.page {
         this.report(result);
     }
     //
-    // loading content(files) to the server using the exec function in the library
-    async upload_content() {
+    // This will help in automating the loading of images from my local storage.
+    // i.e. my pc to the server
+    // hint: I'll be using the Fetch command to send a request from my client to the server.
+    async upload_content(input) {
+        //
+        //Form data is is of type body init
+        const form = new FormData();
+        //
+        //Destructure the input to reveal ots keys
+        const { destination, content, keyword } = input;
+        //
+        //We expect content to a filelist; if not, then there is an issue
+        if (!(content instanceof FileList))
+            throw new mutall_error('Content is expected to be a file list');
+        //
+        // Add the files for sending to the server
+        for (let i = 0; i < content.length; i++)
+            form.append("input_file[]", content[i]);
+        //
+        //Add destination and keywords for sendig to the server
+        form.append('destination', destination);
+        form.append('keyword', keyword);
+        //
+        //These are the fetch options
+        const options = {
+            //
+            //This corresponds to the method attribute of a form
+            method: 'post',
+            body: form
+        };
+        //
+        //Use the fetch method method to content to the server
+        //The action (attribute) of a form matches the resource parameter of the fetch command
+        const response = await fetch("./upload.php", options);
+        //
+        //Test if fetch was succesful if not alert the user with an error
+        if (!response.ok)
+            throw 'Fetch request failed...for some reason.';
+        //
+        //Get the text that was echoed by the php file
+        const result = await response.text();
+        //
+        //Alert the result
+        if (result === 'ok')
+            return 'ok';
+        else
+            return new Error(result);
     }
     //
     // this will help in moving to next document

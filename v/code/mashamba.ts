@@ -45,8 +45,8 @@ export class mashamba extends view.page {
   //
   // Image
   public zooming_image: HTMLImageElement;
-  // //
-  // // Intial zoom size
+  //
+  // Intial zoom size
   public current_zoom: number = 1;
   //
   //

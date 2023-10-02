@@ -62,7 +62,7 @@ type source =
 type Iimagery = {
     //
     //To distinguish algebric data types form simple datatypes
-    type:"imagery",
+    type:"imagery";
     //
     //Source of content either local or remote
     source: source;
@@ -84,17 +84,6 @@ type Iimagery = {
     //What to do if the content already exist on the server
     action: "overwrite" | "report" | "skip";
 };
-//
-//Data structure to help us handle raw input before validation checks
-//type raw<data> = {
-//    [key in keyof data]: dirty<data[key]>;
-//};
-//
-//This structure introduces posibility of noise in the given structure
-type dirty<x> =
-    x extends basic_value|FileList ? basic_value|FileList|Error
-    :x extends {}? raw<x>
-    :never;
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -497,23 +486,86 @@ class imagery extends dialog<Iimagery>{
         super({url,anchor},data,true);
     }
     //
+    //Since the Imagery structure is a complex data type which consinst of an algebric
+    //data type within it we have to populate the form in levels.The source key tells us 
+    //more about which sub-form to populate.We start populating the form from that option
+    //After that is done we now have to populate the keyword and the destination only 
+    //There other fields in the imagery that are not explicitly gotten from the form and
+    //have to be filterd out before the whole process of population begins.
+    //
     //This only happens in case of modification of the existing data.
     //We use the data provided to get all the keys and for each key 
     //we identify the html element,the envelop, in the form where the data of 
     //the given key should be populated.We then establish the iotype of the 
     //input element under the envelop to determine the method that we would use 
     //to populate the data to the given input element
-    //
-    //We populate the form in levels first we establish the source of data.This will
-    //Guid us on the subform that we need to populate.After establishing the section to populate
-    //We need to look for the io type of the specified section
     public populate(data:Iimagery):void{
+        //
+        //Populate the selected source first
+        this.populate_radio("source", data.source.type);
         //
         //Using the source select region to populate
         switch (data.source.type){
             //
+            //Local server
+            case "local": this.populate_files();
             //
+            //Digital ocean
+            case "digital ocean": this.populate_text("path", data.source.path);
+            //
+            //Other server
+            case "other server": this.populate_text("url", data.source.url);
+            //
+            //If any other option is given crash to indicate anomaly
+            default: throw new mutall_error("The source given is not correct");
         }
+        //
+        //Populate the destination
+        this.populate_text("destination", data.destination);
+        //
+        //Populate the keywords
+        this.populate_text("keywords", data.keywords);
+    }
+    //
+    //Depending on the selected source populate the relevant radio button
+    private populate_radio(name: string, value:string):void{
+        //
+        //Find a radio button with a value simmilar to the type 
+        const radio = this.query_selector(`input[name = ' ${name}'][value = '${value}']`) as HTMLInputElement;
+        //
+        //Check the radio button 
+        radio.checked = true;
+    }
+    //
+    //Populate a text input element with the given text 
+    //Find the enveloping element normally a label
+    //Ensure that the envelop contains a text input element
+    //Proceed to fill the text input with the provided text
+    private populate_text(env_id:string, text:string):void{
+        //
+        //Get element and extract all the children
+        const elements:Array<any> = Array.from(this.get_element(env_id).children);
+        //
+        //From the list of elements extract the elements with the view attribute
+        const element: Array<any> = elements.filter(element=> 'value' in element);
+        //
+        //Take care of the anomalies
+        //
+        //If no element with the attribute value exist within the envelope
+        if (element.length === 0) 
+            throw new mutall_error('Check your envelop labels and make sure they are correct');
+        //
+        //When there are more than one record with the value attribute 
+        if(element.length > 1) 
+            throw new mutall_error('Check your envelop labels and make sure they are correct');
+        //
+        //Finally set the value attribute to the provided string
+        element[0].value = text;
+    }
+    //
+    //TODO how to populate a file selector using a file list
+    private populate_files():void{
+        
     }
     //
     //Get the raw data from the form as it is with possibility of errors.
@@ -532,28 +584,29 @@ class imagery extends dialog<Iimagery>{
             throw "The source was not filled.Ensure the source is filled";
         //
         //Initialize the source of the collected data
-        let source:raw<source> = this.get_source(selection);
+        let source:raw<source> = this.read_source(selection);
         //
         //Fetch the data from the form.
         const raw: raw<Iimagery> = {
-            type:'imagery',
+            type:"imagery",
             source,
             destination: this.get_value("destination"),
             keywords: this.get_value("keyword"),
             contributor: await this.get_intern_pk(), // The intern that did the uploading of the images
-            dbname:this.dbname,
+            dbname:'mutall_imagery',
+            action:'report'
         };
         //
         return raw;
     }
     //
     //Collect the source data depending on the selected source
-    private get_source(selection:string):raw<source>{
+    private read_source(selection:string):raw<source>{
         //
         //Compile the source based on the selected option
         switch(selection){
             //
-            //When the data is from digital ocean
+            //When the data collected is from the local client
             case'local': return {
                 type:selection,
                 //
@@ -561,7 +614,7 @@ class imagery extends dialog<Iimagery>{
                 files: this.get_value('files')
             }; 
             //
-            //When the data collected is from the local client
+            //When the data is from digital ocean
             case'digital ocean': return {
                 type:selection,
                 path: this.get_value('path')

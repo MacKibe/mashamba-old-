@@ -15,10 +15,10 @@ import {user} from "../../../outlook/v/code/app.js";
 //
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
-import {mutall_error, basic_value} from "../../../schema/v/code/schema.js";
+import {mutall_error} from "../../../schema/v/code/schema.js";
 //
 //Import the dialog class to help with collection of input from the user
-import{dialog,raw} from "./dialog.js"
+import{dialog} from "./dialog.js"
 //
 //Get the documents to drive our page. A document has the following structure:-
 type doc = {
@@ -61,9 +61,6 @@ type source =
 
 type Iimagery = {
     //
-    //To distinguish algebric data types form simple datatypes
-    type:"imagery",
-    //
     //Source of content either local or remote
     source: source;
     //
@@ -86,15 +83,10 @@ type Iimagery = {
 };
 //
 //Data structure to help us handle raw input before validation checks
-//type raw<data> = {
-//    [key in keyof data]: dirty<data[key]>;
-//};
-//
-//This structure introduces posibility of noise in the given structure
-type dirty<x> =
-    x extends basic_value|FileList ? basic_value|FileList|Error
-    :x extends {}? raw<x>
-    :never;
+//?????????
+type raw<data extends {[key in keyof data]: data[key]}> = {
+    [key in keyof data]: data[key] | Error | null;
+};
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -114,7 +106,7 @@ export class mashamba extends view.page {
     public docs?: Array<doc>;
     //
     //An instance of the registration that will help in logging in and out
-    static register: registration;
+    public register: registration;
     //
     //
     constructor() {
@@ -137,7 +129,7 @@ export class mashamba extends view.page {
         document.getElementById("save_data_btn")!.onclick = () => this.save();
         //
         //Create an instance of the registration for signing in and out opreations
-        mashamba.register = new registration();
+        this.register = new registration();
     }
 
     //
@@ -169,16 +161,257 @@ export class mashamba extends view.page {
         data_in?: Iimagery
     ): Promise<void> {
         //
-        //Create a new instance of the imagery dialog
-        const dlg = new imagery("./image_form.html", anchor, data_in);
+        //Open, i.e., create and show, the dialog for capturing the user input(JM)
+        const {dlg, save, cancel} = this.open_dialog(
+            anchor,//Where to hook the dialog box
+            "./image_form.html",//The HTML fragment
+            data_in// The data input in case of modification of existing data
+        );
         //
         //Wait for the user to click either save or cancel button and when they 
         //do return the imagery or undefined(JM,SW,JK,GK,GM)
-        const result: Iimagery | undefined = await dlg.administer();
+        const result: Iimagery | undefined = await this.load_images_onsave(save, cancel);
+        //
+        //Close the dialog
+        anchor.removeChild(dlg);
         //
         //Update the home page (i.e., show the fist image loaded, ready for 
         //transcripion) if the loading was successful(JK)
         if (result !== undefined) this.update_home_page(result);
+    }
+    //
+    //Open a dialog box that will be used for geting user input.To open a dialog
+    //the user must provide:-
+    //1.The point where the dialog will be displayed(anchored)
+    //2.The data collection form to be used 
+    //3.The data that is to be modified in cases where the user is supposed to edit
+    //We expect to get a dialog element a save and a cancel button from this process
+    //
+    //We create a dialog element then get the data collection form and append it 
+    //to the dialog box after which we create two buttons the save and cancel and 
+    //anchor them to the dialog box.Immediately the creation of the dialog box is 
+    //complete we then conditionally fill the form with data if we are editing else
+    //we leave the form as it is and show the dialog eventually
+    private open_dialog(
+        //
+        //Point wehere we are going to display our dialog box
+        anchor: HTMLElement,
+        //
+        //The Html form that will be used for data collection
+        fragment: string,
+        //
+        //Data to be modified in edit cases
+        data?: Iimagery
+    ): {dlg: HTMLDialogElement; save: HTMLButtonElement, cancel: HTMLButtonElement} {
+        //
+        //Create a dialog box
+        const dlg: HTMLDialogElement = this.create_element('dialog', anchor);
+        //
+        //Attach the input form to the given dialog
+        this.append_form(fragment, dlg);
+        //
+        //Create the save and cancel buttons on the dialog
+        //
+        //save
+        const save: HTMLButtonElement = this.create_element('button', dlg, {textContent: "save"});
+        //
+        //cancel
+        const cancel: HTMLButtonElement = this.create_element('button', dlg, {textContent: "cancel"});
+        //
+        //Check to see if the data_in was provided an if so populate the releveant inputs
+        if (data) this.populate_form(data);
+        //
+        //Show the dialog
+        dlg.showModal();
+        //
+        //Return the expected html elements
+        return {dlg, save, cancel};
+    }
+    //
+    //The end goal is to produce a data collection dialog. Using the provided 
+    //path to the form collect the html as a string then use the string to recreate
+    //the from inside the dialog using the innerHtml attribute
+    private async append_form(
+        //
+        //The path to the fragment
+        fragment: string,
+        //
+        //The anchor to the fragment
+        anchor:HTMLElement
+    ): Promise<void>{
+        //
+        //Request for the content of the file specified by the path 
+        //????? Wait for the form fragment
+        const response: Response = await fetch(``); 
+        //
+        //Check whether there was an error in server-client communication 
+        if (!response.ok) return;
+        //
+        //Append the string to the html of the dialog
+        anchor.innerHTML = await response.text();
+    }
+    //
+    //We wait for the user to enter the data that is required in the form and initate
+    //one of two processes:-
+    //1. Save
+    //2. Cancel
+    //Based on the user selected process we prefom relevant actions
+    private load_images_onsave(
+        save: HTMLButtonElement,
+        cancel: HTMLButtonElement
+    ): Promise<Iimagery | undefined> {
+        //
+        //Wait for the user to enter data and initiate the desired process
+        return new Promise((resolve) => {
+            //
+            //Attach a click event listener to the save button
+            save.onclick = async () => await this.get_and_save(resolve);
+            //
+            //Attach a click event listener to the cancel.
+            //Resolve whenever the user aborts the process
+            cancel.onclick = () => resolve(undefined);
+        });
+    }
+    //
+    //Here we collect the data that the user enterd in the form then save considering 
+    //the different sources of the data while reporting any errors to the user
+    //and eventually resolving the promised data upon succesful saving.
+    private async get_and_save(resolve: (data: Iimagery) => void) {
+        //
+        //Retrieve the infomation that was enterd by the user(JM)
+        //????improve defination of raw???
+        const data_out: Iimagery = this.get_data();
+        //
+        //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
+        const result: "ok" | Error = await this.save_images(data_out);
+        //
+        //Report if the operation was sucesful and resolve 
+        //the promised Iimagery on success(KM)
+        if (result === "ok") resolve(data_out);
+        else this.report_error("report", result.message);
+    }
+    //
+    //???????????Investigate on suitable return type rather than an error???????
+    //
+    //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
+    //Using the data consider the following cases and use appropriate methods to 
+    //save data alongside metadata:-
+    //1. Data source is in Digital ocean server(SW)
+    //2. Data source is from the client(GM,JK,GK)
+    //3. Data is generally on other server(cloud storage), i.e. google photos, 
+    //here we only load the url to the database as the only metadata (GK) 
+    private async save_images(data: Iimagery): Promise<"ok" | Error> {
+        //
+        //Using the source of the data choose the relevant saving technique
+        switch (data.source.type) {
+            //
+            //Save images and metadata from the digital ocean server(SW)
+            case ("digital ocean"): return await this.save_image_digital_ocean(data);
+            //
+            //Save images and metadata from the client(JK,GM,GK)
+            case ("local"): return await this.save_images_client(data);
+            //
+            //Save metadata from other server(GK)
+            case ("other server"): return await this.save_images_other_server(data);
+            //
+            //Raise an error if the source provided is not correct
+            default: return new mutall_error("Please select the correct source!");
+        }
+    }
+    //
+    //Save images and metadata from the digital ocean server(SW)
+    private async save_image_digital_ocean(data:Iimagery):Promise<"ok"|Error>{}
+    //
+    //Save images and metadata from the client(JK,GM,GK)
+    private async save_images_client(data:Iimagery): Promise<"ok"|Error>{
+        //
+        //save the content(the image)(JK,GM)
+        this.save_content(data);
+        //
+        //save the metadata to the db(GK)
+        const result:"ok"|Error = await this.save_metadata(data);
+        //
+        return result;
+    }
+    //
+    //Save metadata from other server(GK)
+    private async save_images_other_server(data:Iimagery): Promise<"ok"|Error>{}
+    //
+    //Get the raw data from the form as it is with possibility of errors then perform
+    //validation checks on the data reporting the errors to the user 
+    private get_data(): Iimagery {
+        //
+        //Fetch the data from the form.
+        const raw: raw<Iimagery> = {
+            destination: this.get_value("destination"),
+            content: this.get_value("content"),
+            keyword: this.get_value("keyword"),
+            intern: await this.get_intern_pk(), // The intern that did the uploading of the images ???????
+        };
+        //
+        //Run the checks on the data gotten and if there is any error report and stop the process
+        if (!this.check_and_report(raw)) return
+        //
+    }
+    //
+    //Get the primary key of the currently logged in intern
+    //
+    //We first check using the instance of the registration if there is any logged in intern
+    //If there is an inter we return the primary key of the user else we initiate the registration process
+    private async get_intern_pk(): Promise<number | Error> {
+        //
+        //Check if there is any intern/user logged in
+        let user: user | undefined = this.register.get_current_user();
+        //
+        //Return the pk of the currently logged in user if a user exists
+        if (user) return user.pk;
+        //
+        //If no user exist initiate the log in sequence
+        user = await this.register.administer();
+        //
+        //Check if the log in process was successful or aborted and return an error while reporting
+        //if it was aborted otherwise return the primary key of the user
+        if (!user)
+            this.report_error(
+                "report",
+                "We need to know who is uploading the images"
+            );
+        //
+        return user
+            ? user.pk
+            : new Error("We need to know who is uploading the images");
+    }
+    //
+    //Perform necessary checks on the raw input and report the errors to the user additionally
+    //flag any errors by returning a false to indicate discontinuance of the data collection process.
+    //True indicates that there was no error and all the required data was supplied
+    private check_and_report(data: raw<Iimagery>): boolean {
+        //
+        //1. Check all the null and erroneous entries
+        //
+        //1.1 Get all the keys of the data object
+        const keys: Array<keyof raw<Iimagery>> = Object.keys(data) as Array<
+            keyof raw<Iimagery>
+        >;
+        //
+        //1.2 Filter out the erroneous values
+        const err_keys: Array<keyof raw<Iimagery>> = keys.filter(
+            (key) => data[key] instanceof Error
+        );
+        //
+        //Report all of the instances of errors or nulls to the user
+        //?????? Reporting of the no user found error ???
+        err_keys.forEach((key) =>
+            this.report_error(
+                key,
+                data[key]
+                    ? (<Error> data[key]).message
+                    : `${key} is required for upload but was not supplied`
+            )
+        );
+        //
+        //Based on the count of the errors or nulls return the appropriate boolean value
+        return err_keys.length ? false : true;
     }
     //
     // loading content(files) to the server using the exec function in the library
@@ -479,7 +712,7 @@ export class mashamba extends view.page {
         //
         // Administer the pop up to get the user
         // User data type is found in the app.ts file of outlook
-        const user: user | undefined = await mashamba.register.administer();
+        const user: user | undefined = await this.register.administer();
         //
         // Return the user name
         if (user) return user.name;
@@ -491,168 +724,21 @@ export class mashamba extends view.page {
 
 class imagery extends dialog<Iimagery>{
     //
-    constructor(url:string,anchor:HTMLElement,data?:Iimagery){
+    //
+    constructor(fragment:string,anchor:HTMLElement,data?:Iimagery){
         //
-        //Initializing the parent class
-        super({url,anchor},data,true);
+        //
+        super(fragment,anchor,data);
     }
     //
-    //This only happens in case of modification of the existing data.
-    //We use the data provided to get all the keys and for each key 
-    //we identify the html element,the envelop, in the form where the data of 
-    //the given key should be populated.We then establish the iotype of the 
-    //input element under the envelop to determine the method that we would use 
-    //to populate the data to the given input element
     //
-    //We populate the form in levels first we establish the source of data.This will
-    //Guid us on the subform that we need to populate.After establishing the section to populate
-    //We need to look for the io type of the specified section
+    public async submit(resolve:(i:Iimagery)=>void):Promise<void>{
+        
+    }
+    //
+    //
     public populate(data:Iimagery):void{
-        //
-        //Using the source select region to populate
-        switch (data.source.type){
-            //
-            //
-        }
+        
     }
-    //
-    //Get the raw data from the form as it is with possibility of errors.
-    //The data should be collected in levels due to the complexity of the data 
-    //entry form. for example:- We collect data of the selected source first to 
-    //determine what would be the next envelop used for data collection. This procedure
-    //should be repeated untill we are at the lowest level that is till we finished all
-    //the data collection
-    public async read():Promise<raw<Iimagery>>{
-        //
-        //Get the selected source to determine the envelop to use for data collection
-        const selection: string | Error | null = this.get_value('source');
-        //
-        //Ensure that the source was selected
-        if(selection instanceof Error || selection === null) 
-            throw "The source was not filled.Ensure the source is filled";
-        //
-        //Initialize the source of the collected data
-        let source:raw<source> = this.get_source(selection);
-        //
-        //Fetch the data from the form.
-        const raw: raw<Iimagery> = {
-            type:'imagery',
-            source,
-            destination: this.get_value("destination"),
-            keywords: this.get_value("keyword"),
-            contributor: await this.get_intern_pk(), // The intern that did the uploading of the images
-            dbname:this.dbname,
-        };
-        //
-        return raw;
-    }
-    //
-    //Collect the source data depending on the selected source
-    private get_source(selection:string):raw<source>{
-        //
-        //Compile the source based on the selected option
-        switch(selection){
-            //
-            //When the data is from digital ocean
-            case'local': return {
-                type:selection,
-                //
-                //TODO:Extend get value to take care of filelist
-                files: this.get_value('files')
-            }; 
-            //
-            //When the data collected is from the local client
-            case'digital ocean': return {
-                type:selection,
-                path: this.get_value('path')
-            };
-            //
-            //When the data is from another server
-            case'other server': return {
-                type:selection,
-                url: this.get_value('url')
-            };
-            //
-            //Discontinue if the data selected was not in any of the above options
-            default:throw new mutall_error("Check on the source you provided");
-        }
-    }
-    //
-    //Get the primary key of the currently logged in intern
-    //
-    //We first check using the instance of the registration if there is any logged in intern
-    //If there is an inter we return the primary key of the user else we initiate the registration process
-    private async get_intern_pk(): Promise<number | Error> {
-        //
-        //Check if there is any intern/user logged in
-        let user: user | undefined = mashamba.register.get_current_user();
-        //
-        //Return the pk of the currently logged in user if a user exists
-        if (user) return user.pk;
-        //
-        //If no user exist initiate the log in sequence
-        user = await mashamba.register.administer();
-        //
-        //Check if the log in process was successful or aborted and return an error while reporting
-        //if it was aborted otherwise return the primary key of the user
-        if (!user)
-            this.report_error(
-                "report",
-                "We need to know who is uploading the images"
-            );
-        //
-        return user
-            ? user.pk
-            : new Error("We need to know who is uploading the images");
-    }
-    //
-    //???????????Investigate on suitable return type rather than an error???????
-    //
-    //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
-    //Using the data consider the following cases and use appropriate methods to 
-    //save data alongside metadata:-
-    //1. Data source is in Digital ocean server(SW)
-    //2. Data source is from the client(GM,JK,GK)
-    //3. Data is generally on other server(cloud storage), i.e. google photos, 
-    //here we only load the url to the database as the only metadata (GK) 
-    public async save(input:Iimagery):Promise<"ok" | Error>{
-        //
-        //Using the source of the data choose the relevant saving technique
-        switch (input.source.type) {
-            //
-            //Save images and metadata from the digital ocean server(JK, GM, GK)
-            //GK -load metadata Php 
-            //JK,SM -load content javascript
-            //GM- load content php
-            case ("digital ocean"): return await this.save_image_digital_ocean(input);
-            //
-            //Save images and metadata from the client(JK,GM,GK)
-            case ("local"): return await this.save_images_client(input);
-            //
-            //Save metadata from other server(GK)
-            case ("other server"): return await this.save_images_other_server(input);
-            //
-            //Raise an error if the source provided is not correct
-            default: return new mutall_error("Please select the correct source!");
-        }
-    }
-    //
-    //Save images and metadata from the digital ocean server(SW)
-    private async save_image_digital_ocean(data:Iimagery):Promise<"ok"|Error>{}
-    //
-    //Save images and metadata from the client(JK,GM,GK)
-    private async save_images_client(data:Iimagery): Promise<"ok"|Error>{
-        //
-        //save the content(the image)(JK,GM)
-        this.save_content(data);
-        //
-        //save the metadata to the db(GK)
-        const result:"ok"|Error = await this.save_metadata(data);
-        //
-        return result;
-    }
-    //
-    //Save metadata from other server(GK)
-    private async save_images_other_server(data:Iimagery): Promise<"ok"|Error>{}
     
 }

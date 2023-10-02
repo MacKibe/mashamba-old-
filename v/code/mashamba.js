@@ -4,11 +4,14 @@ import * as server from "../../../schema/v/code/server.js";
 //
 //Import the registration library.
 //Access the registration services from the registration class
-import { registration } from "./registration.js";
+import { registration } from "../../../registration/v/code/registration.js";
 //
 //Access to Page class of our library
 import * as view from "../../../outlook/v/code/view.js";
 import { mutall_error } from "../../../schema/v/code/schema.js";
+//
+//Import the dialog class to help with collection of input from the user
+import { dialog } from "./dialog.js";
 //
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
@@ -26,6 +29,9 @@ export class mashamba extends view.page {
     //
     //The results of interrogating the database is an array of documents
     docs;
+    //
+    //An instance of the registration that will help in logging in and out
+    static register;
     //
     //
     constructor() {
@@ -45,6 +51,9 @@ export class mashamba extends view.page {
         //
         // Attach an event listener for saving the transcriptions
         document.getElementById("save_data_btn").onclick = () => this.save();
+        //
+        //Create an instance of the registration for signing in and out opreations
+        mashamba.register = new registration();
     }
     //
     //Replace the show pannels method with our own version
@@ -57,22 +66,31 @@ export class mashamba extends view.page {
         this.load_title();
     }
     //
-    //Assuming
-    //First assume the images are on the server,
-    // next assume its on another computer.
-    // Data = content(files) + metadata(interfaces).
-    async load_images(data) {
+    //Load upload files to a server and save the metadat to a database
+    //Use the Promise approach
+    async load_images(
+    //
+    //Where to hook the input dialog
+    anchor, 
+    //
+    //??
+    data_in) {
         //
-        // 1. If you dont have the data then collect it from the user.
-        const data_to_use = data ?? this.get_data_from_user();
+        //Create a new instance of the imagery dialog
+        const dlg = new imagery("./image_form.html", anchor, data_in);
         //
-        // At this point I have the data i want to use.
+        //Wait for the user to click either save or cancel button and when they 
+        //do return the imagery or undefined(JM,SW,JK,GK,GM)
+        const result = await dlg.administer();
         //
-        // 2. Use the data to determine whether the content is on the server
-        // If its not on the server then transfer it from your PC to server.
-        //
-        // 3. Load the metadata to the appropriate database, this is unconditional.
+        //Update the home page (i.e., show the fist image loaded, ready for 
+        //transcripion) if the loading was successful(JK)
+        if (result !== undefined)
+            this.update_home_page(result);
     }
+    //
+    // loading content(files) to the server using the exec function in the library
+    async upload_content(data_to_use) { }
     //
     // this will help in moving to next document
     move_next() {
@@ -83,7 +101,7 @@ export class mashamba extends view.page {
             return;
         }
         //
-        // Increate the counter by 1
+        // Increase the counter by 1
         this.counter++;
         // Load tthe titles using the new counter
         this.load_title();
@@ -175,29 +193,22 @@ export class mashamba extends view.page {
     //
     //
     create_other_page(page) {
-        // Remove previously selected image, if any
-        const selectedImage = document.querySelector(".imgSelected");
-        if (selectedImage) {
-            selectedImage.classList.remove("imgSelected");
-        }
+        //
         // Create an image element for this page
         const image = document.createElement("img");
+        //
         // Add a class to the image
         image.classList.add("image");
+        //
         // Set the source of the image to the URL of the page
         image.src = `http://localhost${page.url}`;
+        //
         // Add event listener to change border color when clicked
         image.addEventListener("click", () => {
-            // Remove the "imgSelected" class from the previously selected image
-            const prevSelectedImage = document.querySelector(".imgSelected");
-            if (prevSelectedImage) {
-                prevSelectedImage.classList.remove("imgSelected");
-            }
-            // Add the "imgSelected" class to the clicked image
-            image.classList.add("imgSelected");
+            image.classList.toggle("imgSelected");
         });
-        // Replace the content of the other-pages div element with the new image
-        this.other_pages.innerHTML = "";
+        //
+        // Attach the image element to the other-pages div element
         this.other_pages.appendChild(image);
     }
     //
@@ -213,14 +224,14 @@ export class mashamba extends view.page {
         // Clear all the inputs of the transcription panel, by looping over all
         // the keys of a document, except the pages key
         /*
-            document:string,
-                pages:string,
-                title_no:string,
-                category:string,
-                area:number,
-                owner:string,
-                regno:string
-            */
+                    document:string,
+                        pages:string,
+                        title_no:string,
+                        category:string,
+                        area:number,
+                        owner:string,
+                        regno:string
+                    */
         for (const key of [
             "document",
             "title_no",
@@ -282,7 +293,7 @@ export class mashamba extends view.page {
         };
         //
         //The elements will now be mapped to their layouts
-        const layouts = Object.keys(ids).map((k) => this.get_layout(k, ids));
+        const layouts = Object.keys(ids).map(async (k) => await this.get_layout(k, ids));
         //
         //Use questionnaire to save the data and get the results
         const result = await server.exec(
@@ -304,7 +315,7 @@ export class mashamba extends view.page {
     }
     //
     // k is the id used to label the input elements in the form
-    get_layout(k, ids) {
+    async get_layout(k, ids) {
         //
         //Coerce k into of of the document keys
         const key = k;
@@ -314,7 +325,7 @@ export class mashamba extends view.page {
         //
         //If the key is a surname use the reg system to get the intern logged in
         if (key === "surname")
-            value = this.get_current_intern();
+            value = await this.get_current_intern();
         else
             value = document.getElementById(key).value;
         //
@@ -333,7 +344,7 @@ export class mashamba extends view.page {
     // and transcriber.
     // The key is a surname use the reg system to get the intern logged in.
     // String is the actual surname of the user logged in.
-    get_current_intern() {
+    async get_current_intern() {
         //
         // Let surname be the result we want.
         let surname;
@@ -343,7 +354,7 @@ export class mashamba extends view.page {
         //
         // If no user is logged in use the registration class to get the user
         if (surname === null)
-            surname = this.get_user_from_registration_system();
+            surname = await this.get_user_from_registration_system();
         //
         // Take the fact that the user may not be active and the registartion system was aborted.
         // chack how to stop a process without using a method.
@@ -355,20 +366,138 @@ export class mashamba extends view.page {
     }
     //
     // Use the registration class to get the user.
-    get_user_from_registration_system() {
-        //
-        // Create registration instance
-        // the registation class will be in the registration.ts in the outlook
-        const popup = new registration();
+    async get_user_from_registration_system() {
         //
         // Administer the pop up to get the user
         // User data type is found in the app.ts file of outlook
-        const user = await popup.administer();
+        const user = await mashamba.register.administer();
         //
         // Return the user name
+        if (user)
+            return user.name;
         //
         // If user is undefined return null
-        //
-        // otherwise return the name of the user
+        return null;
     }
+}
+class imagery extends dialog {
+    //
+    constructor(url, anchor, data) {
+        //
+        //Initializing the parent class
+        super({ url, anchor }, data, true);
+    }
+    //
+    //This only happens in case of modification of the existing data.
+    //We use the data provided to get all the keys and for each key 
+    //we identify the html element,the envelop, in the form where the data of 
+    //the given key should be populated.We then establish the iotype of the 
+    //input element under the envelop to determine the method that we would use 
+    //to populate the data to the given input element
+    populate(data) {
+    }
+    //
+    //Get the raw data from the form as it is with possibility of errors.
+    //The data should be collected in levels due to the complexity of the data 
+    //entry form. for example:- We collect data of the selected source first to 
+    //determine what would be the next envelop used for data collection. This procedure
+    //should be repeated untill we are at the lowest level that is till we finished all
+    //the data collection
+    async read() {
+        //
+        //Get the selected source to determine the envelop to use for data collection
+        const source = this.get_value('source');
+        //
+        //Ensure that the source was selected
+        if (source instanceof Error && null)
+            throw "The source was not filled.Ensure the source is filled";
+        //
+        //
+        //
+        //Fetch the data from the form.
+        const raw = {
+            source,
+            destination: this.get_value("destination"),
+            keywords: this.get_value("keyword"),
+            contributor: await this.get_intern_pk(),
+            dbname: this.dbname,
+        };
+        //
+        return raw;
+    }
+    //
+    //Get the primary key of the currently logged in intern
+    //
+    //We first check using the instance of the registration if there is any logged in intern
+    //If there is an inter we return the primary key of the user else we initiate the registration process
+    async get_intern_pk() {
+        //
+        //Check if there is any intern/user logged in
+        let user = mashamba.register.get_current_user();
+        //
+        //Return the pk of the currently logged in user if a user exists
+        if (user)
+            return user.pk;
+        //
+        //If no user exist initiate the log in sequence
+        user = await mashamba.register.administer();
+        //
+        //Check if the log in process was successful or aborted and return an error while reporting
+        //if it was aborted otherwise return the primary key of the user
+        if (!user)
+            this.report_error("report", "We need to know who is uploading the images");
+        //
+        return user
+            ? user.pk
+            : new Error("We need to know who is uploading the images");
+    }
+    //
+    //???????????Investigate on suitable return type rather than an error???????
+    //
+    //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
+    //Using the data consider the following cases and use appropriate methods to 
+    //save data alongside metadata:-
+    //1. Data source is in Digital ocean server(SW)
+    //2. Data source is from the client(GM,JK,GK)
+    //3. Data is generally on other server(cloud storage), i.e. google photos, 
+    //here we only load the url to the database as the only metadata (GK) 
+    async save(input) {
+        //
+        //Using the source of the data choose the relevant saving technique
+        switch (input.source.type) {
+            //
+            //Save images and metadata from the digital ocean server(JK, GM, GK)
+            //GK -load metadata Php 
+            //JK,SM -load content javascript
+            //GM- load content php
+            case ("digital ocean"): return await this.save_image_digital_ocean(input);
+            //
+            //Save images and metadata from the client(JK,GM,GK)
+            case ("local"): return await this.save_images_client(input);
+            //
+            //Save metadata from other server(GK)
+            case ("other server"): return await this.save_images_other_server(input);
+            //
+            //Raise an error if the source provided is not correct
+            default: return new mutall_error("Please select the correct source!");
+        }
+    }
+    //
+    //Save images and metadata from the digital ocean server(SW)
+    async save_image_digital_ocean(data) { }
+    //
+    //Save images and metadata from the client(JK,GM,GK)
+    async save_images_client(data) {
+        //
+        //save the content(the image)(JK,GM)
+        this.save_content(data);
+        //
+        //save the metadata to the db(GK)
+        const result = await this.save_metadata(data);
+        //
+        return result;
+    }
+    //
+    //Save metadata from other server(GK)
+    async save_images_other_server(data) { }
 }

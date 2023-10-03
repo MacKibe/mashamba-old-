@@ -85,6 +85,17 @@ type Iimagery = {
     action: "overwrite" | "report" | "skip";
 };
 //
+//Data structure to help us handle raw input before validation checks
+//type raw<data> = {
+//    [key in keyof data]: dirty<data[key]>;
+//};
+//
+//This structure introduces posibility of noise in the given structure
+type dirty<x> =
+    x extends basic_value|FileList ? basic_value|FileList|Error
+    :x extends {}? raw<x>
+    :never;
+//
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
     //
@@ -484,6 +495,25 @@ class imagery extends dialog<Iimagery>{
         //
         //Initializing the parent class
         super({url,anchor},data,true);
+    }
+    //
+    //This only happens in case of modification of the existing data.
+    //We use the data provided to get all the keys and for each key 
+    //we identify the html element,the envelop, in the form where the data of 
+    //the given key should be populated.We then establish the iotype of the 
+    //input element under the envelop to determine the method that we would use 
+    //to populate the data to the given input element
+    //
+    //We populate the form in levels first we establish the source of data.This will
+    //Guid us on the subform that we need to populate.After establishing the section to populate
+    //We need to look for the io type of the specified section
+    public populate(data:Iimagery):void{
+        //
+        //Using the source select region to populate
+        switch (data.source.type){
+            //
+            //
+        }
     }
     //
     //Get the raw data from the form as it is with possibility of errors.

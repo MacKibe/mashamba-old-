@@ -50,9 +50,6 @@ export abstract class dialog<Idata> extends view{
     //nessesarily be saving the data to the database
     abstract save(input:Idata):Promise<"ok" | Error>;
     //
-    //Fill the dialog box with the given data, typically obtained from a database
-    abstract populate(data:Idata):void;
-    //
     //The opposite of populate. It reads and returns data from a dialog
     abstract read():Promise<raw<Idata>>;
     //
@@ -141,6 +138,15 @@ export abstract class dialog<Idata> extends view{
         //Return the submit and cancel buttons.
         return {submit:this.get_element('submit'), cancel:this.get_element('cancel')}        
     }
+    //
+    //Fill the dialog box with the given data, typically obtained from a database
+    //This section is particularly useful in cases of modification of data. 
+    //When a dialog instance is created with data then override this method
+    //to provide the prefferd way of displaying the data to the dialog form.
+    private populate(data:Idata):void{
+        //
+        throw new mutall_error("This section is never reached");
+    };
     //
     //We wait for the user to enter the data that is required in the form and initate
     //one of two processes:-

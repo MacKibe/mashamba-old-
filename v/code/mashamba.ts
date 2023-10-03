@@ -533,183 +533,171 @@ export class mashamba extends view.page {
   }
 }
 
-class imagery extends dialog<Iimagery> {
-  //
-  constructor(url: string, anchor: HTMLElement, data?: Iimagery) {
+class imagery extends dialog<Iimagery>{
     //
-    //Initializing the parent class
-    super({ url, anchor }, data, true);
-  }
-  //
-  //This only happens in case of modification of the existing data.
-  //We use the data provided to get all the keys and for each key
-  //we identify the html element,the envelop, in the form where the data of
-  //the given key should be populated.We then establish the iotype of the
-  //input element under the envelop to determine the method that we would use
-  //to populate the data to the given input element
-  //
-  //We populate the form in levels first we establish the source of data.This will
-  //Guid us on the subform that we need to populate.After establishing the section to populate
-  //We need to look for the io type of the specified section
-  public populate(data: Iimagery): void {
-    //
-    //Using the source select region to populate
-    switch (
-      data.source.type
-      //
-      //
-    ) {
+    constructor(url:string,anchor:HTMLElement,data?:Iimagery){
+        //
+        //Initializing the parent class
+        super({url,anchor},data,true);
     }
-  }
-  //
-  //Get the raw data from the form as it is with possibility of errors.
-  //The data should be collected in levels due to the complexity of the data
-  //entry form. for example:- We collect data of the selected source first to
-  //determine what would be the next envelop used for data collection. This procedure
-  //should be repeated untill we are at the lowest level that is till we finished all
-  //the data collection
-  public async read(): Promise<raw<Iimagery>> {
     //
-    //Get the selected source to determine the envelop to use for data collection
-    const selection: string | Error | null = this.get_value("source");
+    //This only happens in case of modification of the existing data.
+    //We use the data provided to get all the keys and for each key 
+    //we identify the html element,the envelop, in the form where the data of 
+    //the given key should be populated.We then establish the iotype of the 
+    //input element under the envelop to determine the method that we would use 
+    //to populate the data to the given input element
     //
-    //Ensure that the source was selected
-    if (selection instanceof Error || selection === null)
-      throw "The source was not filled.Ensure the source is filled";
-    //
-    //Initialize the source of the collected data
-    let source: raw<source> = this.get_source(selection);
-    //
-    //Fetch the data from the form.
-    const raw: raw<Iimagery> = {
-      type: "imagery",
-      source,
-      destination: this.get_value("destination"),
-      keywords: this.get_value("keyword"),
-      contributor: await this.get_intern_pk(), // The intern that did the uploading of the images
-      dbname: this.dbname,
-    };
-    //
-    return raw;
-  }
-  //
-  //Collect the source data depending on the selected source
-  private get_source(selection: string): raw<source> {
-    //
-    //Compile the source based on the selected option
-    switch (selection) {
-      //
-      //When the data is from digital ocean
-      case "local":
-        return {
-          type: selection,
-          //
-          //TODO:Extend get value to take care of filelist
-          files: this.get_value("files"),
-        };
-      //
-      //When the data collected is from the local client
-      case "digital ocean":
-        return {
-          type: selection,
-          path: this.get_value("path"),
-        };
-      //
-      //When the data is from another server
-      case "other server":
-        return {
-          type: selection,
-          url: this.get_value("url"),
-        };
-      //
-      //Discontinue if the data selected was not in any of the above options
-      default:
-        throw new mutall_error("Check on the source you provided");
+    //We populate the form in levels first we establish the source of data.This will
+    //Guid us on the subform that we need to populate.After establishing the section to populate
+    //We need to look for the io type of the specified section
+    public populate(data:Iimagery):void{
+        //
+        //Using the source select region to populate
+        switch (data.source.type){
+            //
+            //
+        }
     }
-  }
-  //
-  //Get the primary key of the currently logged in intern
-  //
-  //We first check using the instance of the registration if there is any logged in intern
-  //If there is an inter we return the primary key of the user else we initiate the registration process
-  private async get_intern_pk(): Promise<number | Error> {
     //
-    //Check if there is any intern/user logged in
-    let user: user | undefined = mashamba.register.get_current_user();
-    //
-    //Return the pk of the currently logged in user if a user exists
-    if (user) return user.pk;
-    //
-    //If no user exist initiate the log in sequence
-    user = await mashamba.register.administer();
-    //
-    //Check if the log in process was successful or aborted and return an error while reporting
-    //if it was aborted otherwise return the primary key of the user
-    if (!user)
-      this.report_error(
-        "report",
-        "We need to know who is uploading the images"
-      );
-    //
-    return user
-      ? user.pk
-      : new Error("We need to know who is uploading the images");
-  }
-  //
-  //???????????Investigate on suitable return type rather than an error???????
-  //
-  //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
-  //Using the data consider the following cases and use appropriate methods to
-  //save data alongside metadata:-
-  //1. Data source is in Digital ocean server(SW)
-  //2. Data source is from the client(GM,JK,GK)
-  //3. Data is generally on other server(cloud storage), i.e. google photos,
-  //here we only load the url to the database as the only metadata (GK)
-  public async save(input: Iimagery): Promise<"ok" | Error> {
-    //
-    //Using the source of the data choose the relevant saving technique
-    switch (input.source.type) {
-      //
-      //Save images and metadata from the digital ocean server(JK, GM, GK)
-      //GK -load metadata Php
-      //JK,SM -load content javascript
-      //GM- load content php
-      case "digital ocean":
-        return await this.save_image_digital_ocean(input);
-      //
-      //Save images and metadata from the client(JK,GM,GK)
-      case "local":
-        return await this.save_images_client(input);
-      //
-      //Save metadata from other server(GK)
-      case "other server":
-        return await this.save_images_other_server(input);
-      //
-      //Raise an error if the source provided is not correct
-      default:
-        return new mutall_error("Please select the correct source!");
+    //Get the raw data from the form as it is with possibility of errors.
+    //The data should be collected in levels due to the complexity of the data 
+    //entry form. for example:- We collect data of the selected source first to 
+    //determine what would be the next envelop used for data collection. This procedure
+    //should be repeated untill we are at the lowest level that is till we finished all
+    //the data collection
+    public async read():Promise<raw<Iimagery>>{
+        //
+        //Get the selected source to determine the envelop to use for data collection
+        const selection: string | Error | null = this.get_value('source');
+        //
+        //Ensure that the source was selected
+        if(selection instanceof Error || selection === null) 
+            throw "The source was not filled.Ensure the source is filled";
+        //
+        //Initialize the source of the collected data
+        let source:raw<source> = this.read_source(selection);
+        //
+        //Fetch the data from the form.
+        const raw: raw<Iimagery> = {
+            type:"imagery",
+            source,
+            destination: this.get_value("destination"),
+            keywords: this.get_value("keyword"),
+            contributor: await this.get_intern_pk(), // The intern that did the uploading of the images
+            dbname:'mutall_imagery',
+            action:'report'
+        };
+        //
+        return raw;
     }
-  }
-  //
-  //Save images and metadata from the digital ocean server(SW)
-  private async save_image_digital_ocean(
-    data: Iimagery
-  ): Promise<"ok" | Error> {}
-  //
-  //Save images and metadata from the client(JK,GM,GK)
-  private async save_images_client(data: Iimagery): Promise<"ok" | Error> {
     //
-    //save the content(the image)(JK,GM)
-    this.save_content(data);
+    //Collect the source data depending on the selected source
+    private read_source(selection:string):raw<source>{
+        //
+        //Compile the source based on the selected option
+        switch(selection){
+            //
+            //When the data collected is from the local client
+            case'local': return {
+                type:selection,
+                //
+                //TODO:Extend get value to take care of filelist
+                files: this.get_value('files')
+            }; 
+            //
+            //When the data is from digital ocean
+            case'digital ocean': return {
+                type:selection,
+                path: this.get_value('path')
+            };
+            //
+            //When the data is from another server
+            case'other server': return {
+                type:selection,
+                url: this.get_value('url')
+            };
+            //
+            //Discontinue if the data selected was not in any of the above options
+            default:throw new mutall_error("Check on the source you provided");
+        }
+    }
     //
-    //save the metadata to the db(GK)
-    const result: "ok" | Error = await this.save_metadata(data);
+    //Get the primary key of the currently logged in intern
     //
-    return result;
-  }
-  //
-  //Save metadata from other server(GK)
-  private async save_images_other_server(
-    data: Iimagery
-  ): Promise<"ok" | Error> {}
+    //We first check using the instance of the registration if there is any logged in intern
+    //If there is an inter we return the primary key of the user else we initiate the registration process
+    private async get_intern_pk(): Promise<number | Error> {
+        //
+        //Check if there is any intern/user logged in
+        let user: user | undefined = mashamba.register.get_current_user();
+        //
+        //Return the pk of the currently logged in user if a user exists
+        if (user) return user.pk;
+        //
+        //If no user exist initiate the log in sequence
+        user = await mashamba.register.administer();
+        //
+        //Check if the log in process was successful or aborted and return an error while reporting
+        //if it was aborted otherwise return the primary key of the user
+        if (!user)
+            this.report_error(
+                "report",
+                "We need to know who is uploading the images"
+            );
+        //
+        return user
+            ? user.pk
+            : new Error("We need to know who is uploading the images");
+    }
+    //
+    //???????????Investigate on suitable return type rather than an error???????
+    //
+    //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
+    //Using the data consider the following cases and use appropriate methods to 
+    //save data alongside metadata:-
+    //1. Data source is in Digital ocean server(SW)
+    //2. Data source is from the client(GM,JK,GK)
+    //3. Data is generally on other server(cloud storage), i.e. google photos, 
+    //here we only load the url to the database as the only metadata (GK) 
+    public async save(input:Iimagery):Promise<"ok" | Error>{
+        //
+        //Using the source of the data choose the relevant saving technique
+        switch (input.source.type) {
+            //
+            //Save images and metadata from the digital ocean server(JK, GM, GK)
+            //GK -load metadata Php 
+            //JK,SM -load content javascript
+            //GM- load content php
+            case ("digital ocean"): return await this.save_image_digital_ocean(input);
+            //
+            //Save images and metadata from the client(JK,GM,GK)
+            case ("local"): return await this.save_images_client(input);
+            //
+            //Save metadata from other server(GK)
+            case ("other server"): return await this.save_images_other_server(input);
+            //
+            //Raise an error if the source provided is not correct
+            default: return new mutall_error("Please select the correct source!");
+        }
+    }
+    //
+    //Save images and metadata from the digital ocean server(SW)
+    private async save_image_digital_ocean(data:Iimagery):Promise<"ok"|Error>{}
+    //
+    //Save images and metadata from the client(JK,GM,GK)
+    private async save_images_client(data:Iimagery): Promise<"ok"|Error>{
+        //
+        //save the content(the image)(JK,GM)
+        this.save_content(data);
+        //
+        //save the metadata to the db(GK)
+        const result:"ok"|Error = await this.save_metadata(data);
+        //
+        return result;
+    }
+    //
+    //Save metadata from other server(GK)
+    private async save_images_other_server(data:Iimagery): Promise<"ok"|Error>{}
+    
 }

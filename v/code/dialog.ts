@@ -261,4 +261,3 @@ export abstract class dialog<Idata> extends view{
     }
 
 } 
-

@@ -79,18 +79,64 @@ export class mashamba extends view.page {
         //Create a new instance of the imagery dialog
         const dlg = new imagery("./image_form.html", anchor, data_in);
         //
-        //Wait for the user to click either save or cancel button and when they 
+        //Wait for the user to click either save or cancel button and when they
         //do return the imagery or undefined(JM,SW,JK,GK,GM)
         const result = await dlg.administer();
         //
-        //Update the home page (i.e., show the fist image loaded, ready for 
+        //Update the home page (i.e., show the fist image loaded, ready for
         //transcripion) if the loading was successful(JK)
         if (result !== undefined)
             this.update_home_page(result);
     }
     //
-    // loading content(files) to the server using the exec function in the library
-    async upload_content(data_to_use) { }
+    // This will help in automating the loading of images from my local storage.
+    // i.e. my pc to the server
+    // hint: I'll be using the Fetch command to send a request from my client to the server.
+    async upload_content(input) {
+        //
+        //Form data is is of type body init
+        const form = new FormData();
+        //
+        //Destructure the input to reveal ots keys
+        const { destination, content, keyword } = input;
+        //
+        //We expect content to a filelist; if not, then there is an issue
+        if (!(content instanceof FileList))
+            throw new mutall_error("Content is expected to be a file list");
+        //
+        // Add the files for sending to the server
+        for (let i = 0; i < content.length; i++)
+            form.append("input_file[]", content[i]);
+        //
+        //Add destination and keywords for sendig to the server
+        form.append("destination", destination);
+        form.append("keyword", keyword);
+        //
+        //These are the fetch options
+        const options = {
+            //
+            //This corresponds to the method attribute of a form
+            method: "post",
+            body: form,
+        };
+        //
+        //Use the fetch method method to content to the server
+        //The action (attribute) of a form matches the resource parameter of the fetch command
+        const response = await fetch("./upload.php", options);
+        //
+        //Test if fetch was succesful if not alert the user with an error
+        if (!response.ok)
+            throw "Fetch request failed...for some reason.";
+        //
+        //Get the text that was echoed by the php file
+        const result = await response.text();
+        //
+        //Alert the result
+        if (result === "ok")
+            return "ok";
+        else
+            return new Error(result);
+    }
     //
     // this will help in moving to next document
     move_next() {
@@ -101,7 +147,7 @@ export class mashamba extends view.page {
             return;
         }
         //
-        // Increase the counter by 1
+        // Increate the counter by 1
         this.counter++;
         // Load tthe titles using the new counter
         this.load_title();
@@ -224,14 +270,14 @@ export class mashamba extends view.page {
         // Clear all the inputs of the transcription panel, by looping over all
         // the keys of a document, except the pages key
         /*
-                    document:string,
-                        pages:string,
-                        title_no:string,
-                        category:string,
-                        area:number,
-                        owner:string,
-                        regno:string
-                    */
+                        document:string,
+                            pages:string,
+                            title_no:string,
+                            category:string,
+                            area:number,
+                            owner:string,
+                            regno:string
+                        */
         for (const key of [
             "document",
             "title_no",
@@ -394,7 +440,17 @@ class imagery extends dialog {
     //the given key should be populated.We then establish the iotype of the 
     //input element under the envelop to determine the method that we would use 
     //to populate the data to the given input element
+    //
+    //We populate the form in levels first we establish the source of data.This will
+    //Guid us on the subform that we need to populate.After establishing the section to populate
+    //We need to look for the io type of the specified section
     populate(data) {
+        //
+        //Using the source select region to populate
+        switch (data.source.type) {
+            //
+            //
+        }
     }
     //
     //Get the raw data from the form as it is with possibility of errors.
@@ -406,24 +462,58 @@ class imagery extends dialog {
     async read() {
         //
         //Get the selected source to determine the envelop to use for data collection
-        const source = this.get_value('source');
+        const selection = this.get_value('source');
         //
         //Ensure that the source was selected
-        if (source instanceof Error && null)
+        if (selection instanceof Error || selection === null)
             throw "The source was not filled.Ensure the source is filled";
         //
-        //
+        //Initialize the source of the collected data
+        let source = this.read_source(selection);
         //
         //Fetch the data from the form.
         const raw = {
+            type: "imagery",
             source,
             destination: this.get_value("destination"),
             keywords: this.get_value("keyword"),
             contributor: await this.get_intern_pk(),
-            dbname: this.dbname,
+            dbname: 'mutall_imagery',
+            action: 'report'
         };
         //
         return raw;
+    }
+    //
+    //Collect the source data depending on the selected source
+    read_source(selection) {
+        //
+        //Compile the source based on the selected option
+        switch (selection) {
+            //
+            //When the data collected is from the local client
+            case 'local': return {
+                type: selection,
+                //
+                //TODO:Extend get value to take care of filelist
+                files: this.get_value('files')
+            };
+            //
+            //When the data is from digital ocean
+            case 'digital ocean': return {
+                type: selection,
+                path: this.get_value('path')
+            };
+            //
+            //When the data is from another server
+            case 'other server': return {
+                type: selection,
+                url: this.get_value('url')
+            };
+            //
+            //Discontinue if the data selected was not in any of the above options
+            default: throw new mutall_error("Check on the source you provided");
+        }
     }
     //
     //Get the primary key of the currently logged in intern

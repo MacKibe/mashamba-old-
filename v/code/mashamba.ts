@@ -181,52 +181,6 @@ export class mashamba extends view.page {
     //transcripion) if the loading was successful(JK)
     if (result !== undefined) this.update_home_page(result);
   }
-  //
-  // This will help in automating the loading of images from my local storage.
-  // i.e. my pc to the server
-  // hint: I'll be using the Fetch command to send a request from my client to the server.
-  public async upload_content(input: Iimagery): Promise<"ok" | Error> {
-    //
-    //Form data is is of type body init
-    const form = new FormData();
-    //
-    //Destructure the input to reveal ots keys
-    const { destination, content, keyword } = input;
-    //
-    //We expect content to a filelist; if not, then there is an issue
-    if (!(content instanceof FileList))
-      throw new mutall_error("Content is expected to be a file list");
-    //
-    // Add the files for sending to the server
-    for (let i = 0; i < content.length; i++)
-      form.append("input_file[]", content[i]);
-    //
-    //Add destination and keywords for sendig to the server
-    form.append("destination", destination);
-    form.append("keyword", keyword);
-    //
-    //These are the fetch options
-    const options: RequestInit = {
-      //
-      //This corresponds to the method attribute of a form
-      method: "post",
-      body: form,
-    };
-    //
-    //Use the fetch method method to content to the server
-    //The action (attribute) of a form matches the resource parameter of the fetch command
-    const response: Response = await fetch("./upload.php", options);
-    //
-    //Test if fetch was succesful if not alert the user with an error
-    if (!response.ok) throw "Fetch request failed...for some reason.";
-    //
-    //Get the text that was echoed by the php file
-    const result: string = await response.text();
-    //
-    //Alert the result
-    if (result === "ok") return "ok";
-    else return new Error(result);
-  }
 
   //
   // this will help in moving to next document
@@ -541,25 +495,6 @@ class imagery extends dialog<Iimagery>{
         super({url,anchor},data,true);
     }
     //
-    //This only happens in case of modification of the existing data.
-    //We use the data provided to get all the keys and for each key 
-    //we identify the html element,the envelop, in the form where the data of 
-    //the given key should be populated.We then establish the iotype of the 
-    //input element under the envelop to determine the method that we would use 
-    //to populate the data to the given input element
-    //
-    //We populate the form in levels first we establish the source of data.This will
-    //Guid us on the subform that we need to populate.After establishing the section to populate
-    //We need to look for the io type of the specified section
-    public populate(data:Iimagery):void{
-        //
-        //Using the source select region to populate
-        switch (data.source.type){
-            //
-            //
-        }
-    }
-    //
     //Get the raw data from the form as it is with possibility of errors.
     //The data should be collected in levels due to the complexity of the data 
     //entry form. for example:- We collect data of the selected source first to 
@@ -690,14 +625,56 @@ class imagery extends dialog<Iimagery>{
         //
         //save the content(the image)(JK,GM)
         this.save_content(data);
-        //
-        //save the metadata to the db(GK)
-        const result:"ok"|Error = await this.save_metadata(data);
-        //
-        return result;
     }
     //
     //Save metadata from other server(GK)
     private async save_images_other_server(data:Iimagery): Promise<"ok"|Error>{}
+    
+  //
+  // This will help in automating the loading of images from my local storage.
+  // i.e. my pc to the server
+  // hint: I'll be using the Fetch command to send a request from my client to the server.
+  public async save_content(input: Iimagery): Promise<"ok" | Error> {
+    //
+    //Form data is is of type body init
+    const form = new FormData();
+    //
+    //Destructure the input to reveal ots keys
+    const { destination, content, keyword } = input;
+    //
+    //We expect content to a filelist; if not, then there is an issue
+    if (!(content instanceof FileList))
+      throw new mutall_error("Content is expected to be a file list");
+    //
+    // Add the files for sending to the server
+    for (let i = 0; i < content.length; i++)
+      form.append("input_file[]", content[i]);
+    //
+    //Add destination and keywords for sendig to the server
+    form.append("destination", destination);
+    form.append("keyword", keyword);
+    //
+    //These are the fetch options
+    const options: RequestInit = {
+      //
+      //This corresponds to the method attribute of a form
+      method: "post",
+      body: form,
+    };
+    //
+    //Use the fetch method method to content to the server
+    //The action (attribute) of a form matches the resource parameter of the fetch command
+    const response: Response = await fetch("./upload.php", options);
+    //
+    //Test if fetch was succesful if not alert the user with an error
+    if (!response.ok) throw "Fetch request failed...for some reason.";
+    //
+    //Get the text that was echoed by the php file
+    const result: string = await response.text();
+    //
+    //Alert the result
+    if (result === "ok") return "ok";
+    else return new Error(result);
+  }
     
 }

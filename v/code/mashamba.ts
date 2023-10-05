@@ -280,7 +280,7 @@ export class mashamba extends view.page {
     //The elements will now be mapped to their layouts
     const layouts: Array<quest.layout> = Object.keys(ids).map((k) => {
       //
-      //Coerce k into of of the document keys
+      //Coerce k into keyof of the document keys
       const key = <keys>k;
       //
       //Get the values of the elements

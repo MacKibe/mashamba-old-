@@ -84,7 +84,6 @@ type Iimagery = {
     //What to do if the content already exist on the server
     action: "overwrite" | "report" | "skip";
 };
-//
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
     //

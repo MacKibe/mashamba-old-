@@ -92,7 +92,7 @@ export abstract class dialog<Idata> extends view{
         const {submit, cancel} =  await this.open();
         //
         //Wait for the user to click either save or cancel button and when they 
-        //do return the imagery or undefined(JM,SW,JK,GK,GM)
+        //do return the requested data
         const result: Idata | undefined = await this.get_user_response(submit, cancel);
         //
         //Close the dialog unconditional

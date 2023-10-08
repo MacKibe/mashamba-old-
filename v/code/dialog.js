@@ -66,7 +66,7 @@ export class dialog extends view {
         const { submit, cancel } = await this.open();
         //
         //Wait for the user to click either save or cancel button and when they 
-        //do return the imagery or undefined(JM,SW,JK,GK,GM)
+        //do return the requested data
         const result = await this.get_user_response(submit, cancel);
         //
         //Close the dialog unconditional
@@ -201,6 +201,7 @@ export class dialog extends view {
         else
             this.report_error("report", result.message);
     }
+    //
     //Check the raw data for errors, returning with the clean data if there are
     //no errors and void if there are.
     check(input) {
@@ -211,7 +212,7 @@ export class dialog extends view {
         //If the input is a group, return the group check result
         is_group(input) ? this.check_group(input)
             //
-            //If the inpt is not a gepup and us errornous, return the void of the
+            //If the inpt is not a group and us errornous, return the void of the
             //the error report
             : input instanceof Error ? this.report_error('report', input.message)
                 //
@@ -221,6 +222,7 @@ export class dialog extends view {
         //
         return output;
     }
+    //
     //Check the raw group (of user inputs) for errors
     check_group(input) {
         //

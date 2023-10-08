@@ -12,7 +12,6 @@ import { mutall_error } from "../../../schema/v/code/schema.js";
 //
 //Import the dialog class to help with collection of input from the user
 import { dialog } from "./dialog.js";
-//
 //Extend the page class with our own version, called mashamba
 export class mashamba extends view.page {
     //

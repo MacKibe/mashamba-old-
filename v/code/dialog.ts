@@ -160,7 +160,7 @@ export abstract class dialog<Idata> extends view{
     //This section is particularly useful in cases of modification of data. 
     //When a dialog instance is created with data then override this method
     //to provide the prefferd way of displaying the data to the dialog form.
-    private populate(data:Idata):void{
+    public populate(data:Idata):void{
         //
         throw new mutall_error("Provide us with a way to present your data!!");
     };

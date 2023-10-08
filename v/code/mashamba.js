@@ -388,15 +388,6 @@ class imagery extends dialog {
         super({ url, anchor }, data, true);
     }
     //
-    //This only happens in case of modification of the existing data.
-    //We use the data provided to get all the keys and for each key 
-    //we identify the html element,the envelop, in the form where the data of 
-    //the given key should be populated.We then establish the iotype of the 
-    //input element under the envelop to determine the method that we would use 
-    //to populate the data to the given input element
-    populate(data) {
-    }
-    //
     //Get the raw data from the form as it is with possibility of errors.
     //The data should be collected in levels due to the complexity of the data 
     //entry form. for example:- We collect data of the selected source first to 
@@ -406,24 +397,58 @@ class imagery extends dialog {
     async read() {
         //
         //Get the selected source to determine the envelop to use for data collection
-        const source = this.get_value('source');
+        const selection = this.get_value('source');
         //
         //Ensure that the source was selected
-        if (source instanceof Error && null)
+        if (selection instanceof Error || selection === null)
             throw "The source was not filled.Ensure the source is filled";
         //
-        //
+        //Initialize the source of the collected data
+        let source = this.read_source(selection);
         //
         //Fetch the data from the form.
         const raw = {
+            type: "imagery",
             source,
             destination: this.get_value("destination"),
             keywords: this.get_value("keyword"),
             contributor: await this.get_intern_pk(),
-            dbname: this.dbname,
+            dbname: 'mutall_imagery',
+            action: 'report'
         };
         //
         return raw;
+    }
+    //
+    //Collect the source data depending on the selected source
+    read_source(selection) {
+        //
+        //Compile the source based on the selected option
+        switch (selection) {
+            //
+            //When the data collected is from the local client
+            case 'local': return {
+                type: selection,
+                //
+                //TODO:Extend get value to take care of filelist
+                files: this.get_value('files')
+            };
+            //
+            //When the data is from digital ocean
+            case 'digital ocean': return {
+                type: selection,
+                path: this.get_value('path')
+            };
+            //
+            //When the data is from another server
+            case 'other server': return {
+                type: selection,
+                url: this.get_value('url')
+            };
+            //
+            //Discontinue if the data selected was not in any of the above options
+            default: throw new mutall_error("Check on the source you provided");
+        }
     }
     //
     //Get the primary key of the currently logged in intern

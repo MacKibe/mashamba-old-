@@ -126,7 +126,14 @@ export abstract class dialog<Idata> extends view{
             const form = this.visual.querySelector("form");
             //
             //Prevent the default submit behaviour of the form if present
-            if(form) form.onsubmit = (e) => e.preventDefault();
+            if(form) {
+                //
+                //Prevent the default submit behaviour of a form
+                form.onsubmit = (e) => e.preventDefault()
+                //
+                //Handle clearance of all error reports on the form
+                form.onchange = () => this.on_input();
+            };
         }
         //
         //If there is any data avalable use it to populate this page
@@ -137,6 +144,16 @@ export abstract class dialog<Idata> extends view{
         //
         //Return the submit and cancel buttons.
         return {submit:this.get_element('submit'), cancel:this.get_element('cancel')}        
+    }
+    //
+    //Clear the error messages in the input form immedietly the user starts to input
+    public on_input():void{
+        //
+        //Get the elements with class 'error' then remove the error message
+        const errors = this.document.querySelectorAll('.error');
+        //
+        //Clear any error messages on the form
+        errors.forEach(error=>error.textContent='');
     }
     //
     //Fill the dialog box with the given data, typically obtained from a database
@@ -202,7 +219,7 @@ export abstract class dialog<Idata> extends view{
         //a specific user input
         else this.report_error("report", result.message);
     }
-
+    //
     //Check the raw data for errors, returning with the clean data if there are
     //no errors and void if there are.
     check(input:raw<Idata>):Idata|undefined{
@@ -213,7 +230,7 @@ export abstract class dialog<Idata> extends view{
             //If the input is a group, return the group check result
             is_group(input) ? this.check_group(input)
             //
-            //If the inpt is not a gepup and us errornous, return the void of the
+            //If the inpt is not a group and us errornous, return the void of the
             //the error report
             : input instanceof Error ? this.report_error('report', input.message)
             //
@@ -223,7 +240,7 @@ export abstract class dialog<Idata> extends view{
         //
         return output;    
     }
-
+    //
     //Check the raw group (of user inputs) for errors
     check_group(input:raw<Idata>):Idata|undefined{
         //
@@ -259,6 +276,5 @@ export abstract class dialog<Idata> extends view{
         //Reteurn input as the clean data
         return <Idata>input;
     }
-
 } 
 

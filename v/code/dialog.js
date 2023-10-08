@@ -25,7 +25,6 @@ export class dialog extends view {
     //Visual representation of the dialog class
     visual;
     //
-    //
     constructor(
     //
     //The optional html fragment needed for cnstrucipng a dialogbox compirise
@@ -54,6 +53,13 @@ export class dialog extends view {
         //Create teh visual aspect of the dialog box
         this.visual = this.create_element("dialog", anchor);
     }
+    //
+    //This coordinates all data collection and processing activities. It shows the 
+    //dialog waits for the user to initiate a process after data entry and depending
+    //on the process selected by the user the data enterd is retrieved from the form
+    //validation checks are done to ensure the quality of the data collected then
+    //fainally the process that the user selectd is undertaken returning the collected
+    //data upon succes and closing the data collection dialog
     async administer() {
         //
         //Show the dialog (there may be a need to fetch a url from the server)
@@ -92,8 +98,15 @@ export class dialog extends view {
             const form = this.visual.querySelector("form");
             //
             //Prevent the default submit behaviour of the form if present
-            if (form)
+            if (form) {
+                //
+                //Prevent the default submit behaviour of a form
                 form.onsubmit = (e) => e.preventDefault();
+                //
+                //Handle clearance of all error reports on the form
+                form.onchange = () => this.on_input();
+            }
+            ;
         }
         //
         //If there is any data avalable use it to populate this page
@@ -109,6 +122,26 @@ export class dialog extends view {
         //Return the submit and cancel buttons.
         return { submit: this.get_element('submit'), cancel: this.get_element('cancel') };
     }
+    //
+    //Clear the error messages in the input form immedietly the user starts to input
+    on_input() {
+        //
+        //Get the elements with class 'error' then remove the error message
+        const errors = this.document.querySelectorAll('.error');
+        //
+        //Clear any error messages on the form
+        errors.forEach(error => error.textContent = '');
+    }
+    //
+    //Fill the dialog box with the given data, typically obtained from a database
+    //This section is particularly useful in cases of modification of data. 
+    //When a dialog instance is created with data then override this method
+    //to provide the prefferd way of displaying the data to the dialog form.
+    populate(data) {
+        //
+        throw new mutall_error("Provide us with a way to present your data!!");
+    }
+    ;
     //
     //We wait for the user to enter the data that is required in the form and initate
     //one of two processes:-
@@ -145,18 +178,18 @@ export class dialog extends view {
     //and eventually resolving the promised data upon succesful saving.
     async submit(resolve) {
         //
-        //Retrieve the infromation that was enterd by the user(JM)
+        //Retrieve the infromation that was enterd by the user
         const input = await this.read();
         //
-        //Check the raw data for errors, reporting them if any(JM) 
+        //Check the raw data for errors, reporting them if any 
         const output = this.check(input);
         //
-        //Continue only of there were no errors. Note the explicit use of '====', 
+        //Continue only of there were no errors. Note the explicit use of '===', 
         //just incase output was a boolean value
         if (output === undefined)
             return;
         //
-        //Save the content (GK,SW,JK,GM)
+        //Save the content 
         const result = await this.save(output);
         //
         //Resolve the promised Idata if the operation was succesful

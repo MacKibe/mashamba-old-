@@ -6,15 +6,19 @@ import {view} from '../../../outlook/v/code/view.js'
 import {mutall_error, basic_value} from "../../../schema/v/code/schema.js";
 //
 //The general definition of a group of user inputs is characterised by the 
-//'type' keyword, a discriminant. This construct allows us to design forms for 
+//'type' keyword, as a discriminant. This construct allows us to design forms for 
 //collecting sophisticated data, Z, defined below:-
 /*
+type Z = A|B|C
+
+where
+
 A extends group{...}
 B extends group{...}
 C extends group{...}
-type Z = A|B|C 
+ 
 */
-interface group {
+export interface group {
     type:string;
 }
 //
@@ -22,8 +26,9 @@ interface group {
 export type raw<x> =
     //
     //If the clean version, x, is a group, then its raw version is the same as x
-    //with all the key values converted to raw (except the discriminant, key, 'type')
-    x extends group ? { [key in keyof x]:key extends 'type' ? x[key]: raw<x[key]>}
+    //with all the key values converted to raw (except the discriminant, key, 'type'
+    //The raw data may involve all r some of he keys of x
+    x extends group ? Partial<{ [key in keyof x]:key extends 'type' ? x[key]: raw<x[key]>}>
     //
     //If x is not a group, then its raw version includes the Error
     :x|Error| null
@@ -37,10 +42,15 @@ export function is_group(user_input:any):user_input is group{
 }
     
 //
-//Dialog is an abstract class that has 3 public methods:-
-//-administer - the collecteds inputs from user
-//- populate that filles a dialog box with inputs
-//- get_raw_user_inputs that reads the user modified inputs
+//Dialog is an abstract class that has 4 public methods:-
+//-administer,  that collect inputs from user
+//- populate, that fills a dialog box with inputs on load
+//- read that extracts  the user modified inputs for
+//- save that uses the rda inputs to execute save-like operation, e.g., writing 
+//to a databse, effecting registration, etc
+//Read and save are hae to be implemented by the extending class. Populate is
+//and does nothing. Users overide it to implement their requirements. It was 
+//designed to spport editing of exusting data 
 export abstract class dialog<Idata> extends view{
     //
     //Visual representation of the dialog class
@@ -95,7 +105,7 @@ export abstract class dialog<Idata> extends view{
         //do return the imagery or undefined(JM,SW,JK,GK,GM)
         const result: Idata | undefined = await this.get_user_response(submit, cancel);
         //
-        //Close the dialog unconditional
+        //Close the dialog unconditionally
         this.close();
         //
         return result;
@@ -133,7 +143,11 @@ export abstract class dialog<Idata> extends view{
         if (this.data_original) this.populate(this.data_original);
         //
         //Show the dialog box, depending on desired mode
-        if (this.modal) this.visual.showModal();  else  this.visual.show(); 
+        if (this.modal) this.visual.showModal();  else  this.visual.show();
+        //
+        //At this point teh daialog box is ready for the users to paint it with
+        //their requirements
+        await this.onopen(); 
         //
         //Return the submit and cancel buttons.
         return {submit:this.get_element('submit'), cancel:this.get_element('cancel')}        
@@ -143,10 +157,26 @@ export abstract class dialog<Idata> extends view{
     //This section is particularly useful in cases of modification of data. 
     //When a dialog instance is created with data then override this method
     //to provide the prefferd way of displaying the data to the dialog form.
-    private populate(data:Idata):void{
+    populate(data:Idata):void{
         //
-        throw new mutall_error("This section is never reached");
+        throw new mutall_error(`Editing of ${this.constructor.name} data is not implemented`);
     };
+    //
+    //Stub for the users to paint the dialogbox so that it looks as desired
+    //when seen he first time. By default, it does nothing. [task]In future this
+    //step may perform such general tasks as:-
+    async onopen():Promise<void>{
+        //
+        //Mark all required data-fields with an asterisk (*)
+        //
+        //Add placeholders for reporting errors, targeting  specific data-fields
+        //
+        //Add even listeners to radio buttons to support collapsing/uncollapsing 
+        //of selected/deselected options. [task] Mogaka/Maggie please note
+        //
+        //Add the event listener for clearing errors on form input
+    }
+
     //
     //We wait for the user to enter the data that is required in the form and initate
     //one of two processes:-

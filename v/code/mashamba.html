@@ -8,21 +8,20 @@
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"
     />
     <link rel="stylesheet" href="./mashamba.css" />
+    <!--
+      Code for controlling this page-->
     <script type="module">
       //
-      // Import the class that carries our code, from mashamba.js file
+      // Import the class that carries our code, from mashama.js file
       import { mashamba } from "./mashamba.js";
       //
-      //After the page loads to the following...
+      //After the page loads....
       window.onload = async () => {
         //
-        //Create the mashamba page
+        //Create the mashmba page
         const Page = new mashamba();
         //
-        //Expose the page var outside
-        window.Page = Page;
-        //
-        //Show the mashamba system,
+        //Show the masmba system,
         await Page.show_panels();
       };
     </script>
@@ -36,30 +35,13 @@
         <button id="previous_btn">Previous</button>
         <button id="nxt_btn">Next</button>
       </fieldset>
-
       <fieldset>
-        <legend>Zoom Image</legend>
-        <button id="zoom_in_btn">
-          <img src="./assets/icons/zoom_in.png" alt="" />
+        <legend>Zoom</legend>
+        <button class="img_buttons" class="zoom_in_btn" id="zoom_in_btn">
+          Zoom In
         </button>
-        <button id="zoom_out_btn">
-          <img src="./assets/icons/zoom_out.png" alt="" />
-        </button>
-      </fieldset>
-
-      <fieldset>
-        <legend>Pan</legend>
-        <button id="pan_left_btn">
-          <img src="./assets/icons/left_arrow.png" alt="" />
-        </button>
-        <button id="pan_up_btn">
-          <img src="./assets/icons/up_arrow.png" alt="" />
-        </button>
-        <button id="pan_right_btn">
-          <img src="./assets/icons/right_arrow.png" alt="" />
-        </button>
-        <button id="zoom_down_btn">
-          <img src="./assets/icons/down_arrow.png" alt="" />
+        <button class="img_buttons" class="zoom_out_btn" id="zoom_out_btn">
+          Zoom Out
         </button>
       </fieldset>
       <fieldset>
@@ -67,66 +49,45 @@
         <input type="text" placeholder="Search.." name="search" />
         <button>Go</button>
       </fieldset>
-
-      <fieldset>
-        <legend>Data model</legend>
-        <button
-          onclick="window.location.href='http://localhost/metavisuo/v/code/metavisuo.html'"
-        >
-          Open Model
-        </button>
-      </fieldset>
-
-      <fieldset>
-        <button onclick="Page.load_images()">Load Images</button>
-      </fieldset>
-
-      <fieldset>
-        <button onclick="Page.sign()">Login</button>
-      </fieldset>
     </header>
     <!-- the first page section -->
     <div id="first_page" class="first_page"></div>
     <!-- Image details section -->
-    <form id="transcribe" class="transcribe">
+    <div id="transcribe" class="transcribe">
       <ul>
         <li>
           <label for="document"> Document Id:</label>
-          <input
-            id="document"
-            class="document"
-            type="text"
-            readonly
-            size="33"
-          />
+          <input id="document" class="document" type="text" readonly />
         </li>
         <li>
-          <label for="title_no"> Title No:<span>*</span> </label>
-          <input id="title_no" type="text" size="33" required />
+          <label for="title_no"> Title No: </label>
+          <input id="title_no" type="text" />
         </li>
         <li>
           <label for="category"> Category: </label>
-          <input list="docs" type="text" id="category" size="8" />
+          <input list="docs" type="text" id="category" />
           <datalist id="docs">
             <option value="mutation"></option>
             <option value="title deed"></option>
+            <option value="certificate of lease"></option>
+            <option value="certificate of title"></option>
           </datalist>
         </li>
         <li>
-          <label for="area"> Approximate Area:(in hectares)</label>
-          <input id="area" type="text" size="2" />
+          <label for="area"> Approximate Area:</label>
+          <input id="area" type="text" />
         </li>
         <li>
           <label for="regno"> Registry Sheet No:</label>
-          <input id="regno" type="text" size="33" />
+          <input id="regno" type="text" />
         </li>
         <li>
-          <label for="owner"> Persons Of Interest:<span>*</span></label>
-          <textarea id="owner" rows="2" required></textarea>
+          <label for="owner"> Persons Of Interest:</label>
+          <textarea id="owner" rows="1"></textarea>
         </li>
       </ul>
-      <button onclick="Page.save()">Save</button>
-    </form>
+      <button id="save_data_btn">Save</button>
+    </div>
     <!-- Display all the other pages of the documents -->
     <div id="other_pages" class="other_pages"></div>
   </body>

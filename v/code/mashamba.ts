@@ -18,7 +18,7 @@ import * as view from "../../../outlook/v/code/view.js";
 import { mutall_error, basic_value } from "../../../schema/v/code/schema.js";
 //
 //Import the dialog class to help with collection of input from the user
-import { dialog, raw } from "./dialog.js";
+import { dialog, raw, group } from "./dialog.js";
 //
 //Get the documents to drive our page. A document has the following structure:-
 type doc = {
@@ -44,22 +44,25 @@ type keys =
   | "regno"
   | "surname";
 
-//Souce of content
+//Source of content
 type source =
   | {
-      type: "local";
+      type: "local_client";
       files: FileList; //Using a file selector
+      destination:string //Pary where to save the data
     }
   | {
-      type: "digital ocean";
+      type: "digital_ocean";
       path: string; //Name of folder or file on the server
     }
   | {
-      type: "other server";
+      type: "other_server";
       url: string; // The universal resource locator pointing to the image
     };
 
-type Iimagery = {
+type action = "overwrite" | "report" | "skip";    
+
+interface Iimagery extends group {
   //
   //To distinguish algebric data types form simple datatypes
   type: "imagery";
@@ -82,7 +85,11 @@ type Iimagery = {
   dbname: string;
   //
   //What to do if the content already exist on the server
-  action: "overwrite" | "report" | "skip";
+  action: action;
+  //
+  //The date for this uploading; we need to save it to the datanase for 
+  //retrievel of the immediately uploaded content
+  date:string;
 };
 //
 //Data structure to help us handle raw input before validation checks
@@ -159,27 +166,20 @@ export class mashamba extends view.page {
     this.load_title();
   }
   //
-  //Load upload files to a server and save the metadat to a database
-  //Use the Promise approach
-  public async load_images(
+  //Upload files to a server and save the metadata to a database. The anchor is
+  //where to hook the input dialog
+  public async load_images(anchor: HTMLElement): Promise<void> {
     //
-    //Where to hook the input dialog
-    anchor: HTMLElement,
-    //
-    //??
-    data_in?: Iimagery
-  ): Promise<void> {
-    //
-    //Create a new instance of the imagery dialog
-    const dlg = new imagery("./image_form.html", anchor, data_in);
+    //Create a new instance of the load images dialog
+    const dlg = new load_images(anchor);
     //
     //Wait for the user to click either save or cancel button and when they
     //do return the imagery or undefined(JM,SW,JK,GK,GM)
-    const result: Iimagery | undefined = await dlg.administer();
+    const result: Iimagery| undefined = await dlg.administer();
     //
     //Update the home page (i.e., show the fist image loaded, ready for
     //transcripion) if the loading was successful(JK)
-    if (result !== undefined) this.update_home_page(result);
+    if (result!== undefined) this.update_home_page(result);
   }
 
   //
@@ -487,15 +487,17 @@ export class mashamba extends view.page {
   }
 }
 
-class imagery extends dialog<Iimagery>{
+
+//
+class load_images extends dialog<Iimagery>{
     //
-    constructor(url:string,anchor:HTMLElement,data?:Iimagery){
+    constructor(anchor:HTMLElement){
         //
-        //Initializing the parent class
-        super({url,anchor},data,true);
+        //Initializing the parent class without any input data.
+        super({url:"./load_images.html",anchor});
     }
     //
-    //Get the raw data from the form as it is with possibility of errors.
+    //Get the raw data from the form as it is, i.e., allowing for input errors.
     //The data should be collected in levels due to the complexity of the data 
     //entry form. for example:- We collect data of the selected source first to 
     //determine what would be the next envelop used for data collection. This procedure
@@ -507,8 +509,7 @@ class imagery extends dialog<Iimagery>{
         const selection: string | Error | null = this.get_value('source');
         //
         //Ensure that the source was selected
-        if(selection instanceof Error || selection === null) 
-            throw "The source was not filled.Ensure the source is filled";
+        if(typeof selection!=='string') throw new mutall_error("Please select a source");
         //
         //Initialize the source of the collected data
         let source:raw<source> = this.read_source(selection);
@@ -521,40 +522,46 @@ class imagery extends dialog<Iimagery>{
             keywords: this.get_value("keyword"),
             contributor: await this.get_intern_pk(), // The intern that did the uploading of the images
             dbname:'mutall_imagery',
-            action:'report'
+            //
+            action:<action>this.get_value('action'),
+            //
+            //Complete the input by adding the date for this uploading; we need to 
+            //save it to the datanase for retrievel of the immediately uploaded content
+            date:this.standardise_date(new Date())
+      
         };
         //
         return raw;
     }
     //
-    //Collect the source data depending on the selected source
+    //Collect the source data depending on the user's selection
     private read_source(selection:string):raw<source>{
         //
         //Compile the source based on the selected option
         switch(selection){
             //
             //When the data collected is from the local client
-            case'local': return {
+            case'local_client': return {
                 type:selection,
                 //
                 //TODO:Extend get value to take care of filelist
-                files: this.get_value('files')
+                files: this.get_files('files')
             }; 
             //
             //When the data is from digital ocean
-            case'digital ocean': return {
+            case'digital_ocean': return {
                 type:selection,
                 path: this.get_value('path')
             };
             //
             //When the data is from another server
-            case'other server': return {
+            case'other_server': return {
                 type:selection,
                 url: this.get_value('url')
             };
             //
             //Discontinue if the data selected was not in any of the above options
-            default:throw new mutall_error("Check on the source you provided");
+            default:throw new mutall_error(`This source '${selection}' is invalid`);
         }
     }
     //
@@ -586,7 +593,7 @@ class imagery extends dialog<Iimagery>{
             : new Error("We need to know who is uploading the images");
     }
     //
-    //???????????Investigate on suitable return type rather than an error???????
+    //???????????Investigate on suitable return type rather than an ok???????
     //
     //Save the content in its entierty handling the reporting(GK,SW,JK,GM)
     //Using the data consider the following cases and use appropriate methods to 
@@ -596,85 +603,39 @@ class imagery extends dialog<Iimagery>{
     //3. Data is generally on other server(cloud storage), i.e. google photos, 
     //here we only load the url to the database as the only metadata (GK) 
     public async save(input:Iimagery):Promise<"ok" | Error>{
-        //
-        //Using the source of the data choose the relevant saving technique
-        switch (input.source.type) {
-            //
-            //Save images and metadata from the digital ocean server(JK, GM, GK)
-            //GK -load metadata Php 
-            //JK,SM -load content javascript
-            //GM- load content php
-            case ("digital ocean"): return await this.save_image_digital_ocean(input);
-            //
-            //Save images and metadata from the client(JK,GM,GK)
-            case ("local"): return await this.save_images_client(input);
-            //
-            //Save metadata from other server(GK)
-            case ("other server"): return await this.save_images_other_server(input);
-            //
-            //Raise an error if the source provided is not correct
-            default: return new mutall_error("Please select the correct source!");
-        }
-    }
-    //
-    //Save images and metadata from the digital ocean server(SW)
-    private async save_image_digital_ocean(data:Iimagery):Promise<"ok"|Error>{}
-    //
-    //Save images and metadata from the client(JK,GM,GK)
-    private async save_images_client(data:Iimagery): Promise<"ok"|Error>{
-        //
-        //save the content(the image)(JK,GM)
-        this.save_content(data);
-    }
-    //
-    //Save metadata from other server(GK)
-    private async save_images_other_server(data:Iimagery): Promise<"ok"|Error>{}
-    
-  //
-  // This will help in automating the loading of images from my local storage.
-  // i.e. my pc to the server
-  // hint: I'll be using the Fetch command to send a request from my client to the server.
-  public async save_content(input: Iimagery): Promise<"ok" | Error> {
-    //
-    //Form data is is of type body init
-    const form = new FormData();
-    //
-    //Destructure the input to reveal ots keys
-    const { destination, content, keyword } = input;
-    //
-    //We expect content to a filelist; if not, then there is an issue
-    if (!(content instanceof FileList))
-      throw new mutall_error("Content is expected to be a file list");
-    //
-    // Add the files for sending to the server
-    for (let i = 0; i < content.length; i++)
-      form.append("input_file[]", content[i]);
-    //
-    //Add destination and keywords for sendig to the server
-    form.append("destination", destination);
-    form.append("keyword", keyword);
-    //
-    //These are the fetch options
-    const options: RequestInit = {
       //
-      //This corresponds to the method attribute of a form
-      method: "post",
-      body: form,
-    };
+      //Create a form for transferring data, i..e, content plus metadata, from 
+      //client to server
+      const form = new FormData();
+      //
+      //Append the encoded Imagery input
+      form.append("imagery", JSON.stringify(input));
+      //
+      //Transfer content to the server, if necessary, by appending the image files
+      if (input.source.type==='local_client') this.save_content(input.source.files, form);
+      //
+      //Use the form with a post method to get ready to fetch
+      const options: RequestInit = { method: "post", body: form};
+      //
+      //Transfer control to the php side
+      const response: Response = await fetch("./load_images.php", options);
+      //
+      //Test if fetch was succesful or not; if not alert the user with an error
+      if (!response.ok) throw "Fetch request failed...for some reason.";
+      //
+      //Get the text that was echoed by the php file
+      const result: string = await response.text();
+      //
+      //Alert the result
+      if (result === "ok") return "ok"; else return new Error(result);
+    }
+
     //
-    //Use the fetch method method to content to the server
-    //The action (attribute) of a form matches the resource parameter of the fetch command
-    const response: Response = await fetch("./upload.php", options);
-    //
-    //Test if fetch was succesful if not alert the user with an error
-    if (!response.ok) throw "Fetch request failed...for some reason.";
-    //
-    //Get the text that was echoed by the php file
-    const result: string = await response.text();
-    //
-    //Alert the result
-    if (result === "ok") return "ok";
-    else return new Error(result);
-  }
+    //Transfer content to a form for onward transmission to teh server
+    save_content(files:FileList, form:FormData){
+      //
+      // Add the files for sending to the server
+      for (let i = 0; i < files.length; i++) form.append("input_file[]", files[i]);
+    }
     
 }

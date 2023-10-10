@@ -143,7 +143,16 @@ export abstract class dialog<Idata> extends view{
         if (this.modal) this.visual.showModal();  else  this.visual.show(); 
         //
         //Return the submit and cancel buttons.
-        return {submit:this.get_element('submit'), cancel:this.get_element('cancel')}        
+        //
+        //Confine the search of the submit and the cancel buttons to the specified anchor
+        const submit: HTMLElement | null = this.visual.querySelector('#submit');
+        //
+        const cancel: HTMLElement | null = this.visual.querySelector("#cancel");
+        //
+        //Ensure that both the submit and cancel buttons are found 
+        if(!(submit && cancel)) throw new mutall_error("We are missing certain buttons!!");
+        //
+        return{submit, cancel};       
     }
     //
     //Clear the error messages in the input form immedietly the user starts to input

@@ -120,6 +120,7 @@ export class dialog extends view {
             this.visual.show();
         //
         //Return the submit and cancel buttons.
+        //
         //Confine the search of the submit and the cancel buttons to the specified anchor
         const submit = this.visual.querySelector('#submit');
         //
@@ -202,7 +203,7 @@ export class dialog extends view {
         const result = await this.save(output);
         //
         //Resolve the promised Idata if the operation was succesful
-        if (result === "ok")
+        if (result === "Ok")
             resolve(output);
         //
         ///..otherwise report the error in a general fashion, i.e., not targeting

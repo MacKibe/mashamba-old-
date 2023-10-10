@@ -48,7 +48,7 @@ export abstract class dialog<Idata> extends view{
     //
     //This refers to the process that led to the data collection.It might not 
     //nessesarily be saving the data to the database
-    abstract save(input:Idata):Promise<"ok" | Error>;
+    abstract save(input:Idata):Promise<"Ok" | Error>;
     //
     //The opposite of populate. It reads and returns data from a dialog
     abstract read():Promise<raw<Idata>>;
@@ -219,10 +219,10 @@ export abstract class dialog<Idata> extends view{
         if (output===undefined) return; 
         //
         //Save the content 
-        const result: "ok" | Error = await this.save(output);
+        const result: "Ok" | Error = await this.save(output);
         //
         //Resolve the promised Idata if the operation was succesful
-        if (result === "ok") resolve(output); 
+        if (result === "Ok") resolve(output); 
         //
         ///..otherwise report the error in a general fashion, i.e., not targeting
         //a specific user input

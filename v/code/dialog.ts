@@ -140,7 +140,11 @@ export abstract class dialog<Idata> extends view{
         if (this.data_original) this.populate(this.data_original);
         //
         //Show the dialog box, depending on desired mode
-        if (this.modal) this.visual.showModal();  else  this.visual.show(); 
+        if (this.modal) this.visual.showModal();  else  this.visual.show();
+        //
+        //Do the form preparations (adding targeted error reporting and marking 
+        //the required fields with asterisk) 
+        await this.onopen();
         //
         //Return the submit and cancel buttons.
         //
@@ -153,6 +157,12 @@ export abstract class dialog<Idata> extends view{
         if(!(submit && cancel)) throw new mutall_error("We are missing certain buttons!!");
         //
         return{submit, cancel};       
+    }
+    //
+    //Prepare the form 
+    async onopen():Promise<void>{
+        //
+        //
     }
     //
     //Clear the error messages in the input form immedietly the user starts to input
@@ -195,6 +205,9 @@ export abstract class dialog<Idata> extends view{
     //
     //This closes the dialog when all operations concerning it are done
     public close():void{
+        //
+        //Close the dialog 
+        this.visual.close();
         //
         //Detach the dialog from the anchor
         //

@@ -35,16 +35,112 @@ export function is_group(user_input:any):user_input is group{
     //string
     return  ('type' in user_input && typeof user_input['type']==='string');
 }
+//
+//Alert is a dialog that is used for serving content to users, i.e., error reporting
+//This is supposed to be a substitute for the normal js alert
+export class myalert extends view{
+    //
+    //Visual representation of the dialog class
+    public proxy:HTMLDialogElement;
+    //
+    //
+    constructor(
+        //
+        //Where to apend the dialog box in the current document
+        public anchor?:HTMLElement,
+        //
+        //How to show the dialog, modal or modalless
+        public modal:boolean = true,
+        //
+        //Infomation being served
+        public data_original?:string    
+    ){
+        //
+        //Instanciate a view
+        super();
+        //
+        //Create a dialog box on the given anchor. If the anchor is not
+        //given, we shall use the document body
+        this.proxy = this.create_element("dialog", this.anchor ? this.anchor : this.document.body);
+    }
+    //
+    //This coordinates all dialog processes. It shows the 
+    //dialog server the content to the user then await for the user to close
+    public async administer():Promise<void>{
+        //
+        //Show the dialog (there may be a need to fetch a url from the server)
+        await this.open();
+        //
+        //Wait for the user to finish the dialog activities
+        await this.get_user_response();
+        //
+        //Close the dialog unconditional
+        this.close();
+    }
+    //
+    //Show the dialog box either modal or modalless depending on the requested use
+    //case and after showing the dialog paint the dialog with the content to be served
+    //this content is mostlikely under the data_original property of the alert dialog
+    private async open():Promise<void>{
+        //
+        //Show the dialog box, depending on desired mode
+        //
+        //Check if dialog exist and open it ???????????????? 
+        //will it show even after being detached form the document
+        if (this.modal) this.proxy.showModal();  else  this.proxy.show();
+        //
+        //This is where the serving of the content is done 
+        await this.onopen(); 
+    }
+    //
+    //Serve the content to the user via the proxy
+    public async onopen():Promise<void>{
+        //
+        //Display the data on the proxy 
+        this.proxy.innerHTML = this.data_original!;
+        //
+        //Create a cancel button that will help in closing of the proxy
+        this.create_element("button", this.proxy, {id:"cancel"});
+    }
+    //
+    //We wait for the user input to determine the next course of action with regard
+    //to the dialog box
+    private get_user_response(): Promise<undefined> {
+        //
+        //Get the cancel button from the dialog
+        const cancel:HTMLElement | null = this.proxy.querySelector("#cancel");
+        //
+        //Acertain that the cancel button is inside the dialog
+        if(!cancel) throw new mutall_error("We are missing a cancel button!!");
+        //
+        //Wait for the user to enter data and initiate the desired process
+        return new Promise((resolve) => {
+            //
+            // ... terminate the process by canceling
+            cancel.onclick = () => resolve(undefined);
+        });
+    }
+    //
+    //This closes the dialog when all operations concerning it are done
+    private close():void{
+        //
+        //Close the dialog 
+        this.proxy.close();
+        //
+        //Detach the dialog from the anchor
+        //
+        //This step is necessary only if the dialogbox was desigend using a
+        //html fragment
+        if (this.anchor) this.anchor.removeChild(this.proxy);
+    }
+}
     
 //
 //Dialog is an abstract class that has 3 public methods:-
 //-administer - the collecteds inputs from user
 //- populate that filles a dialog box with inputs
 //- get_raw_user_inputs that reads the user modified inputs
-export abstract class dialog<Idata> extends view{
-    //
-    //Visual representation of the dialog class
-    public visual:HTMLDialogElement;
+export abstract class dialog<Idata> extends myalert{
     //
     //This refers to the process that led to the data collection.It might not 
     //nessesarily be saving the data to the database
@@ -55,62 +151,31 @@ export abstract class dialog<Idata> extends view{
     //
     constructor(
         //
-        //The optional html fragment needed for cnstrucipng a dialogbox compirise
-        //of 2 parts: the url and the pont where to anchor it. It is not 
-        //needed when the input form is already designed by the user. 
-        //The mashamba project is a case in point 
-        public fragment?:{url:string, anchor:HTMLElement},
-        //
-        //The original data being edited
-        public data_original?:Idata,
+        //Where to apend the dialog box in the current document
+        public anchor?:HTMLElement,
         //
         //How to show the dialog, modal or modalless
-        public modal:boolean = true
+        public modal:boolean = true ,
+        //
+        //The optional html fragment needed for constructing a dialogbox 
+        // This is the path to the data collection form
+        public fragment_url?:string
     ){
         //
-        //Get the url (for the parent constructor) of the html fragment is 
-        //given
-        super(fragment ? fragment.url: undefined);
-        //
-        //Create a dialog box on the given fragment anchor. If teh fragment is not
-        //given, we shall use the existing body
-        const anchor:HTMLElement = fragment ? fragment.anchor : this.document.body;
-        //
-        //Create teh visual aspect of the dialog box
-        this.visual = this.create_element("dialog", anchor);
-    }
-    //
-    //This coordinates all data collection and processing activities. It shows the 
-    //dialog waits for the user to initiate a process after data entry and depending
-    //on the process selected by the user the data enterd is retrieved from the form
-    //validation checks are done to ensure the quality of the data collected then
-    //fainally the process that the user selectd is undertaken returning the collected
-    //data upon succes and closing the data collection dialog
-    public async administer():Promise<Idata|undefined>{
-        //
-        //Show the dialog (there may be a need to fetch a url from the server)
-        const {submit, cancel} =  await this.open();
-        //
-        //Wait for the user to click either save or cancel button and when they 
-        //do return the requested data
-        const result: Idata | undefined = await this.get_user_response(submit, cancel);
-        //
-        //Close the dialog unconditional
-        this.close();
-        //
-        return result;
+        //Instantiate myalert which is the parent class of a dialog
+        super(anchor,modal);    
     }
     //
     //Process of attaching the form fragment to the dialog box and populating the 
     //form in case of data modification.After all these processes show the dailog
     //box to the user for data entry.
-    private async open():Promise<{submit:HTMLElement, cancel:HTMLElement}>{
+    private async open():Promise<void>{
         //
         //If the html fragment is provided, use it to show the dialog box 
-        if (this.fragment){
+        if (this.fragment_url){
             //
             //Request for the content of the file specified by the path 
-            const response: Response = await fetch(this.fragment.url); 
+            const response: Response = await fetch(this.fragment_url); 
             //
             //Check whether there was an error in server-client communication 
             if (!response.ok) 
@@ -120,10 +185,10 @@ export abstract class dialog<Idata> extends view{
                 );
             //
             //Append the string to the html of the dialog
-            this.visual.innerHTML = await response.text();
+            this.proxy.innerHTML = await response.text();
             //
             //Get whatever form was appended to the dialog
-            const form = this.visual.querySelector("form");
+            const form = this.proxy.querySelector("form");
             //
             //Prevent the default submit behaviour of the form if present
             if(form) {
@@ -140,33 +205,27 @@ export abstract class dialog<Idata> extends view{
         if (this.data_original) this.populate(this.data_original);
         //
         //Show the dialog box, depending on desired mode
-        if (this.modal) this.visual.showModal();  else  this.visual.show();
+        if (this.modal) this.proxy.showModal();  else  this.proxy.show();
         //
         //Do the form preparations (adding targeted error reporting and marking 
         //the required fields with asterisk) 
-        await this.onopen();
-        //
-        //Return the submit and cancel buttons.
-        //
-        //Confine the search of the submit and the cancel buttons to the specified anchor
-        const submit: HTMLElement | null = this.visual.querySelector('#submit');
-        //
-        const cancel: HTMLElement | null = this.visual.querySelector("#cancel");
-        //
-        //Ensure that both the submit and cancel buttons are found 
-        if(!(submit && cancel)) throw new mutall_error("We are missing certain buttons!!");
-        //
-        return{submit, cancel};       
+        await this.onopen();     
     }
     //
-    //Prepare the form 
-    async onopen():Promise<void>{
+    //Perform the final preparations on the data collection form ,i.e., adding
+    //error reporting sections and also marking the required fields with asteriks
+    public async onopen():Promise<void>{
         //
+        //Get all the data collection envelops 
         //
+        //Add a span with the class error which is for targeted error reporting
+        //
+        //Check if the field has a requird attribute and append an asterik to indicate
+        //that the field is required 
     }
     //
     //Clear the error messages in the input form immedietly the user starts to input
-    public on_input():void{
+    private on_input():void{
         //
         //Get the elements with class 'error' then remove the error message
         const errors = this.document.querySelectorAll('.error');
@@ -189,7 +248,17 @@ export abstract class dialog<Idata> extends view{
     //1. submit
     //2. Cancel
     //Based on the user selected process we prefom relevant actions
-    private get_user_response(submit:HTMLElement, cancel:HTMLElement): Promise<Idata| undefined> {
+    public get_user_response(): Promise<Idata| undefined> {
+        //
+        //Return the submit and cancel buttons.
+        //
+        //Confine the search of the submit and the cancel buttons to the specified anchor
+        const submit: HTMLElement | null = this.proxy.querySelector('#submit');
+        //
+        const cancel: HTMLElement | null = this.proxy.querySelector("#cancel");
+        //
+        //Ensure that both the submit and cancel buttons are found 
+        if(!(submit && cancel)) throw new mutall_error("We are missing certain buttons!!");
         //
         //Wait for the user to enter data and initiate the desired process
         return new Promise((resolve) => {
@@ -201,19 +270,6 @@ export abstract class dialog<Idata> extends view{
             // ... terminate the process by canceling
             cancel.onclick = () => resolve(undefined);
         });
-    }
-    //
-    //This closes the dialog when all operations concerning it are done
-    public close():void{
-        //
-        //Close the dialog 
-        this.visual.close();
-        //
-        //Detach the dialog from the anchor
-        //
-        //This step is necessary only if the dialogbox was desigend using a
-        //html fragment
-        if (this.fragment) this.fragment.anchor.removeChild(this.visual);
     }
     //
     //Here we collect the data that the user enterd in the form then save considering 

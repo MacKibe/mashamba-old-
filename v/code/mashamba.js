@@ -21,9 +21,18 @@ export class mashamba extends view.page {
     //The results of interrogating the database is an array of documents
     docs;
     //
+    // Image
+    zooming_image;
+    //
+    // Intial zoom size
+    current_zoom = 1;
+    //
     //
     constructor() {
         super();
+        //
+        //intialize the page one panel
+        this.zooming_image = document.getElementById("first_page_image");
         //
         //intialize the page one panel
         this.first_page = document.getElementById("first_page");
@@ -39,6 +48,12 @@ export class mashamba extends view.page {
         //
         // Attach an event listener for saving the transcriptions
         document.getElementById("save_data_btn").onclick = () => this.save_data();
+        //
+        // Attach an event listener for zooming in the image
+        document.getElementById("zoom_in_btn").onclick = () => this.zoom_in();
+        //
+        // Attach an event listener for zooming out the image
+        document.getElementById("zoom_out_btn").onclick = () => this.zoom_out();
     }
     //
     //Replace the show pannels method with our own version
@@ -125,6 +140,26 @@ export class mashamba extends view.page {
         // Attach the image element to the other-pages div element
         this.other_pages.appendChild(image);
     }
+    //
+    // Helps in zooming in the image in the first page section
+    zoom_in() {
+        //
+        // Increase the zoom size
+        this.current_zoom += 0.1;
+        //
+        // Increase the size of the image
+        this.zooming_image.style.transform = "scale(" + this.current_zoom + ")";
+    }
+    //
+    // Helps in zooming out the image in the first page section
+    zoom_out() {
+        //
+        // Decrement the zoom size
+        this.current_zoom += 0.1;
+        //
+        // Reduce the size of the image
+        this.zooming_image.style.transform = "scale(" + this.current_zoom + ")";
+    }
     //clear all the 3 panels
     clear_panels() {
         //
@@ -204,7 +239,7 @@ export class mashamba extends view.page {
         //The elements will now be mapped to their layouts
         const layouts = Object.keys(ids).map((k) => {
             //
-            //Coerce k into of of the document keys
+            //Coerce k into keyof of the document keys
             const key = k;
             //
             //Get the values of the elements
